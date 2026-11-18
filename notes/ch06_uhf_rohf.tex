@@ -1,0 +1,77 @@
+\chapter{Unrestricted Hartree--Fock}
+\label{ch:uhf}
+
+Open shells (radicals, cations, triplets) and closed-shell molecules in the bond-breaking region both require relaxing the restrictions of RHF. This chapter derives the open-shell HF method UHF, which uses a separate set of spatial orbitals for $\alpha$ and $\beta$ electrons.
+
+\textbf{Parallel reading.} “qc” pp.~66--67 (UHF and RHF). Textbooks: Szabo--Ostlund §3.8 (the Pople--Nesbet equations of UHF; §3.8.7 is the dissociation of H$_2$ and its UHF solution).
+
+\section{UHF: the Pople--Nesbet Equations}
+
+\subsection{Energy}
+
+Take spin orbitals $\chi_i^\alpha = \psi_i^\alpha \alpha$ and $\chi_i^\beta = \psi_i^\beta \beta$, with two independent sets of spatial orbitals. Start from the single-determinant energy of Chapter 2 and split the sums by spin. The one-body part splits directly:
+\begin{align*}
+\sum_m h_{mm} &= \sum_i^{N_\alpha} h_{ii}^\alpha + \sum_i^{N_\beta} h_{ii}^\beta
+\end{align*}
+Two-body part $\frac{1}{2} \sum_{mn} [\phys{mn}{mn} - \phys{mn}{nm}]$: the Coulomb term exists for all four spin combinations; the exchange term is non-zero only for equal spins (the spin-integration rules of Chapter 2):
+\begin{align*}
+\frac{1}{2} \sum_{mn} \phys{mn}{mn} &= \frac{1}{2} \sum_{\sigma \tau} \sum_{i \in \sigma} \sum_{j \in \tau} \chem{ii}{jj}
+\end{align*}
+\begin{align*}
+\frac{1}{2} \sum_{mn} \phys{mn}{nm} &= \frac{1}{2} \sum_{\sigma} \sum_{i,j \in \sigma} \chem{ij}{ji}
+\end{align*}
+In the AO basis: $D^\sigma_{\mu \nu} = \sum_{i \in \sigma} C^\sigma_{\mu i} C^\sigma_{\nu i}$ (without the factor 2), $D = D^\alpha + D^\beta$. In the Coulomb term the sums over $i \in \sigma$ and $j \in \tau$ give $D^{\sigma}$ and $D^\tau$, and the sum over $\sigma, \tau$ gives the total density; in the exchange term both indices belong to the same spin:
+\begin{align*}
+\frac{1}{2} \sum_{\sigma \tau} \sum_{i \in \sigma} \sum_{j \in \tau} \chem{ii}{jj} &= \frac{1}{2} \sum_{\mu \nu \lambda \kappa} D_{\mu \nu} D_{\lambda \kappa} \chem{\mu \nu}{\lambda \kappa} = \frac{1}{2} \tr(J[D] D), \\
+\frac{1}{2} \sum_{\sigma} \sum_{i,j \in \sigma} \chem{ij}{ji} &= \frac{1}{2} \sum_{\sigma} \tr(K[D^\sigma] D^\sigma)
+\end{align*}
+Hence
+\begin{align}\label{eq:euhf}
+E_{\text{UHF}} &= \tr(H D) + \frac{1}{2} \tr(J[D] D) - \frac{1}{2} \sum_{\sigma} \tr(K[D^{\sigma}] D^{\sigma}) + E_{nn}
+\end{align}
+(Comparison with RHF: there $D^\alpha = D^\beta = D/2$ and the exchange term is $\frac{1}{2} \cdot 2 \cdot \tr(K[D/2] D/2) = \frac{1}{4} \tr(K[D] D)$, which recovers the formula of Chapter 4.)
+
+\subsection{Fock Matrices}
+
+The derivative of the energy with respect to $D^{\sigma}$ is the Fock matrix. Differentiate term by term, using that $J$ and $K$ are linear in $D$ and $\tr(J[A] B) = \tr(J[B] A)$ (symmetry of the integrals). For the Coulomb term the first-order change is
+\begin{align*}
+\delta \left[ \frac{1}{2} \tr(J[D] D) \right] &= \frac{1}{2} \tr(J[\delta D] D) + \frac{1}{2} \tr(J[D] \delta D) \\
+&= \tr(J[D] \delta D)
+\end{align*}
+The two terms are equal by symmetry, which cancels the $\frac{1}{2}$; and since $\delta D = \delta D^\alpha + \delta D^\beta$, the derivative with respect to $D^{\sigma}$ is $J[D]$. The exchange term is analogous but contains only the density of the same spin:
+\begin{align*}
+\frac{\partial}{\partial D^\sigma_{\nu \mu}} \left[ \frac{1}{2} \tr(J[D] D) \right] &= J[D]_{\mu \nu}, \\
+\frac{\partial}{\partial D^\sigma_{\nu \mu}} \left[ \frac{1}{2} \tr(K[D^\sigma] D^\sigma) \right] &= K[D^\sigma]_{\mu \nu}
+\end{align*}
+Therefore
+\begin{align}\label{eq:fock-uhf}
+F^\sigma &= H + J[D^\alpha + D^\beta] - K[D^\sigma]
+\end{align}
+Varying each set of orbitals under the orthonormality constraint gives the Pople--Nesbet equations:
+\begin{align*}
+F^\alpha C^\alpha &= S C^\alpha \epsilon^\alpha, \quad F^\beta C^\beta = S C^\beta \epsilon^\beta
+\end{align*}
+The two equations are coupled through $J[D^\alpha + D^\beta]$. The energy can be written $E = \frac{1}{2} \sum_{\sigma} \tr[(H + F^{\sigma}) D^{\sigma}] + E_{nn}$.
+
+Implementation: \code{uhf} (plain iteration) and \code{uhf\_diis} (with the DIIS of Chapter 5) in \code{hf\_to\_cc/scf.py}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+j = np.einsum("mnls, ls->mn", eri, da_o + db_o)
+ka = np.einsum("mlns, ls->mn", eri, da_o)
+kb = np.einsum("mlns, ls->mn", eri, db_o)
+fa = h + j - ka
+fb = h + j - kb
+\end{lstlisting}
+\eqref{eq:fock-uhf} for $\sigma = \alpha, \beta$: one Coulomb matrix $J[D^\alpha + D^\beta]$ from the total density, one exchange matrix $K[D^\sigma]$ per spin from the density of that spin (\code{da\_o}, \code{db\_o} are $D^\alpha$, $D^\beta$, without the factor 2).
+\end{codemap}
+
+\begin{pitfall}
+\textbf{UHF has several solutions.} Converging is not enough. For CO$_2^+$/STO-3G (\code{molecules/co2.xyz}, charge $+1$), \code{uhf\_diis} started from the core Hamiltonian converges to $-184.3961$~Eh, and started from the orbitals of the atomic-density guess (\code{guess\_orbitals}) to $-184.7402$~Eh, the PySCF value. For HCN$^+$/STO-3G it is the other way round: the core-Hamiltonian start gives a solution 17~mEh \emph{below} PySCF's. For N$_2^+$ every start ends on a solution that is not a minimum. Which solution is the lowest can only be decided by examining the second derivatives of the energy with respect to orbital rotations (a stability analysis).
+\end{pitfall}
+
+\begin{summary}
+\begin{itemize}
+\item UHF: $F^{\sigma} = H + J[D^{\alpha} + D^{\beta}] - K[D^{\sigma}]$.
+\end{itemize}
+\end{summary}

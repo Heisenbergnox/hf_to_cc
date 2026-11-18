@@ -1,0 +1,39 @@
+\chapter{Configuration Interaction: Structure and Size Consistency}
+\label{ch:ci}
+
+CI is conceptually the simplest correlation method: expand the wave function as a linear combination of determinants and apply linear variation (Chapter 1). This chapter discusses the structure of CI and its greatest weakness---truncated CI is not size consistent.
+
+\textbf{Parallel reading.} “qc” pp.~71--77 (classification of CI, size consistency) and “Adv qc” pp.~33--35 (correlation energy and size consistency: the CID correlation energy of $N$ independent H$_2$ molecules is proportional to $\sqrt{N}$, the same as ``An Exactly Solvable Model'' in this chapter). The model comes from Szabo--Ostlund §4.6 (truncated CI and the size-consistency problem); Helgaker §11.3 also uses it to discuss the CID energy; Shavitt--Bartlett §1.5--1.8 discuss the same problem from the viewpoint of ``disconnected clusters''.
+
+\section{The CI Expansion}
+
+With the HF determinant as reference, classify by excitation level:
+\begin{align*}
+|\Psi\rangle &= c_0 |\Phi_0\rangle + \sum_{ia} c_i^a |\Phi_i^a\rangle \\
+&\quad + \sum_{i<j, a<b} c_{ij}^{ab} |\Phi_{ij}^{ab}\rangle \\
+&\quad + \sum_{i<j<k, a<b<c} c_{ijk}^{abc} |\Phi_{ijk}^{abc}\rangle + \dots
+\end{align*}
+Including all possible determinants gives FCI, the exact solution of the Schrödinger equation within the given basis. For the same orbitals the trial spaces are nested, so the variational principle (Chapter 1) gives $E_{\text{exact}} \le E_{\text{FCI}} \le E_{\text{CISD}} \le E_{\text{HF}}$ (with CISD built on this HF determinant).
+
+\section{Size Consistency}
+
+\subsection{Definition}
+
+For two non-interacting systems A and B, the exact energy satisfies $E(A + B) = E(A) + E(B)$. A method that satisfies this when A and B are infinitely far apart is called size consistent. The premise is that the reference of A+B is the product of the references of A and B, and that the variational space or truncation of the method is compatible with A and B. Under this premise HF, FCI, CC and MBPT are size consistent; truncated CI is not. An example where the premise fails: when H$_2$ dissociates into two H atoms, the product of the two open-shell H atoms is not in the variational space of closed-shell RHF, so RHF is not size consistent.
+
+\subsection{An Exactly Solvable Model}
+
+Take $M$ H$_2$ molecules infinitely far apart, each in a minimal basis (one bonding orbital $\sigma_g$, one antibonding orbital $\sigma_u$). For a single H$_2$: reference $|0\rangle = |\sigma_g^2\rangle$ and a single double excitation $|D\rangle = |\sigma_u^2\rangle$ (single excitations do not couple to the ground state by symmetry). For $M$ molecules the CID space contains the reference and the $M$ doubly excited determinants $|D_A\rangle$ (only molecule A excited) but not the quadruples $|D_A D_B\rangle$, and its correlation energy grows only like $\sqrt{M}$: the correlation energy per molecule tends to zero as $M \rightarrow \infty$. This is what ``truncated CI is not size extensive'' means.
+
+\textbf{What is missing?} The FCI wave function is the product of the wave functions of the molecules:
+\begin{align*}
+\Psi &= \prod_A (|0_A\rangle + c |D_A\rangle) = |0\rangle + c \sum_A |D_A\rangle + c^2 \sum_{A<B} |D_A D_B\rangle + \dots
+\end{align*}
+The coefficients of the quadruples $|D_A D_B\rangle$ are exactly products of double-excitation coefficients, $c^2$---such ``disconnected'' higher excitations are precisely what truncated CI throws away. The exponential ansatz $e^{T_2}$ of CC automatically contains $\frac{1}{2} T_2^2$, which is why CC is size extensive (Chapter 11).
+
+\begin{summary}
+\begin{itemize}
+\item Truncated CI is not size consistent: the CID correlation energy of $M$ independent H$_2$ molecules grows only like $\sqrt{M}$, and the correlation energy per molecule tends to zero as $M$ grows.
+\item What is missing are ``disconnected'' higher excitations (quadruples $\sim c_D^2$).
+\end{itemize}
+\end{summary}

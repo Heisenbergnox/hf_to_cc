@@ -1,0 +1,296 @@
+\chapter{Coupled-Cluster Theory and CCD}
+\label{ch:cc}
+
+Chapter 10 showed that what truncated CI lacks are ``disconnected'' higher excitations---quadruples in which two double excitations happen at once, whose coefficients are approximately products of double-excitation coefficients. Coupled cluster (CC) includes these product terms automatically through the exponential ansatz and therefore stays size extensive after truncation. This chapter follows the line of MEST pp.~33--46 (“CC” pp.~1--17 follow the same route: formal theory, energy equation, amplitude equations, Feynman diagrams; “qc” pp.~82--84 and “Adv qc” p.~35 explain why the exponential ansatz automatically contains disconnected terms such as $T_2 T_2$; for textbooks see Shavitt--Bartlett §1.8 and Ch.~9--10 and the Crawford--Schaefer review pp.~45--111): the exponential ansatz, the similarity transformation, the natural truncation of the BCH expansion, the energy equation and the CCD amplitude equations.
+
+\section{The Exponential Ansatz}
+
+\begin{align*}
+|\Psi_{\text{CC}}\rangle &= e^{T} |\Phi_0\rangle, \quad T = T_1 + T_2 + T_3 + \dots
+\end{align*}
+\begin{align*}
+T_1 &= \sum_{ia} t_i^a \cre{a} \ann{i}, \quad T_2 = \frac{1}{4} \sum_{ijab} t_{ij}^{ab} \cre{a} \cre{b} \ann{j} \ann{i} \\
+T_n &= \left(\frac{1}{n!}\right)^2 \sum t_{ij\ldots}^{ab\ldots} \cre{a} \cre{b} \ldots \ann{j} \ann{i}
+\end{align*}
+The amplitudes are antisymmetric in the occupied indices and in the virtual indices separately ($t_{ij}^{ab} = -t_{ji}^{ab} = -t_{ij}^{ba}$). All excitation operators are products of ``quasiparticle creation operators'' ($\cre{a}$ creates a particle, $a_i$ creates a hole), and they commute with each other:
+\begin{align*}
+[T_m, T_n] &= 0
+\end{align*}
+For two single-excitation operators (MEST p.~34):
+\begin{align*}
+[\cre{a} \ann{i}, \cre{b} \ann{j}] &= \cre{a} \ann{i} \cre{b} \ann{j} - \cre{b} \ann{j} \cre{a} \ann{i} \\
+\cre{b} \ann{j} \cre{a} \ann{i} &= -\cre{b} \cre{a} \ann{j} \ann{i} = \cre{a} \cre{b} \ann{j} \ann{i} = -\cre{a} \cre{b} \ann{i} \ann{j} = \cre{a} \ann{i} \cre{b} \ann{j} \eqnote{$i, j \neq a, b$} \\
+[\cre{a} \ann{i}, \cre{b} \ann{j}] &= 0
+\end{align*}
+Each step swaps two neighboring operators whose anticommutator is zero ($\{\ann{j}, \cre{a}\} = \delta_{ja} = 0$, $\{\ann{i}, \cre{b}\} = \delta_{ib} = 0$), so it only changes the sign.
+
+\textbf{Expansion up to double excitations} (MEST p.~33):
+\begin{align*}
+e^{T} |\Phi_0\rangle &= \left(1 + T + \frac{1}{2!} T^2 + \frac{1}{3!} T^3 + \dots\right) |\Phi_0\rangle \\
+&= \left(1 + T_1 + T_2 + \frac{1}{2} (T_1^2 + T_1 T_2 + T_2 T_1 + T_2^2) + \frac{1}{6} T_1^3 + \dots\right) |\Phi_0\rangle \\
+&= \left(1 + T_1 + T_2 + \frac{1}{2} T_1^2 + T_1 T_2 + \frac{1}{2} T_2^2 + \frac{1}{6} T_1^3 + \dots\right) |\Phi_0\rangle
+\end{align*}
+The last step uses $T_2 T_1 = T_1 T_2$: the mixed term appears twice in $\frac{1}{2} T^2$, the square terms once.
+Compared with the CI coefficients, $c_{ij}^{ab} = t_{ij}^{ab} + (t_i^a t_j^b - t_i^b t_j^a)$, and the coefficients of quadruples contain $\frac{1}{2} T_2^2$---exactly what truncated CI is missing.
+
+\textbf{Size extensivity.} For two non-interacting systems A and B, $T = T_A + T_B$ (the excitation operators act on their own orbitals and commute with each other), and
+\begin{align*}
+(1 + T_A)(1 + T_B) &= 1 + T_A + T_B + T_A T_B \\
+e^{T_A} e^{T_B} &= e^{T_A + T_B} \eqnote{$[T_A, T_B] = 0$} \\
+e^{T_A + T_B} |\Phi_0^A \Phi_0^B\rangle &= e^{T_A} |\Phi_0^A\rangle e^{T_B} |\Phi_0^B\rangle
+\end{align*}
+A product of fragment wave functions contains the product $T_A T_B$, which a sum of excitation operators (CI) lacks; the exponential of the sum $T_A + T_B$ is the product of the fragment exponentials, and for operators this requires $[T_A, T_B] = 0$ (“qc” pp.~82--83, “Adv qc” p.~35).
+The wave function is a product and the energies are additive. With truncation (e.g.\ keeping only $T_1 + T_2$) one must also show that $T_A + T_B$ really solves the truncated equations. Since $H = H_A + H_B$ and $T_A$ commutes with $H_B$, $\bar{H} = \bar{H}_A + \bar{H}_B$. Projected onto determinants that excite only A, this gives the residual of A itself; projected onto determinants in which both A and B are excited, it vanishes, because $\bar{H}_A$ can only excite A and $\bar{H}_B$ only B. So the fragment solutions together solve the whole system, with energy $E = E_A + E_B$. What is truncated is the excitation level of the connected cluster operator $T$; products in $e^{T}$ still produce higher, disconnected excitations---for example, the product of a double excitation on each fragment is a quadruple excitation.
+
+\section{Similarity Transformation and the Projected Equations}
+
+Substitute $e^{T}|\Phi_0\rangle$ into $H |\Psi\rangle = E |\Psi\rangle$ and multiply from the left by $e^{-T}$:
+\begin{align*}
+e^{-T} H e^T |\Phi_0\rangle = E |\Phi_0\rangle, \quad \bar{H} = e^{-T} H e^T
+\end{align*}
+Project onto the reference and the excited determinants:
+\begin{align}\label{eq:cc-eqs}
+E = \langle \Phi_0|\bar{H}|\Phi_0\rangle, \quad 0 = \langle \Phi_\mu|\bar{H}|\Phi_0\rangle \quad (\mu = \text{single, double, ... excitations})
+\end{align}
+The similarity-transformed equations contain only connected terms (next section).
+
+\section{The BCH Expansion and Its Natural Truncation}
+
+\subsection{The Expansion}
+
+The Baker--Campbell--Hausdorff expansion:
+\begin{align*}
+e^{-T} H e^{T} &= H + [H, T] + \frac{1}{2!} [[H, T], T] + \frac{1}{3!} [[[H, T], T], T] \\
+&\quad + \frac{1}{4!} [[[[H, T], T], T], T] + \dots
+\end{align*}
+
+\subsection{Commutators Keep Only Connected Terms}
+
+Use the normal-ordered Hamiltonian $\HN  = H - E_{\text{ref}} = \FN  + \VN$ (Chapter 7). $T$ itself is normal ordered (it contains only quasiparticle creation operators). By Wick's theorem,
+\begin{align*}
+\HN T &= \no{\HN T} + (\text{terms of } \HN T \text{ with at least one contraction})
+\end{align*}
+The operators of $T$ cannot be contracted with each other or with the quasiparticle creation operators of $\HN$, and with $T$ on the left and $\HN$ on the right, the quasiparticle \emph{creation} operators of $T$ stand to the left of the quasiparticle \emph{annihilation} operators of $\HN$---their contractions vanish. So $T \HN  = \no{T \HN } = \no{\HN  T}$ (reordering inside a normal-ordered product only changes the sign, and $T$ is a product of an even number of operators, so the sign does not change). Hence
+\begin{align*}
+[\HN , T] &= \HN  T - T \HN  = (\HN  T)_c
+\end{align*}
+where $(\dots)_c$ means that there is at least one contraction line between $\HN$ and $T$ (connected). Likewise, in nested commutators every $T$ must be connected to $\HN$ (the argument of MEST pp.~34--36):
+\begin{align*}
+[[\HN, T], T] &= ((\HN T) T)_c \quad (\text{both } T \text{ connected to } \HN)
+\end{align*}
+($T$ and $T$ cannot contract with each other.)
+
+\subsection{Two Worked Examples}
+
+The cancellation of the uncontracted terms can be followed explicitly with the simplest cluster operator $T_1$ and the Fock part $\FN$ of $\HN$ (MEST pp.~34--36, “CC” p.~6).
+
+\textbf{Example 1: $[\FN, T_1]$.}
+\begin{align*}
+[\FN, T_1] &= \sum_{pq} f_{pq} \sum_{ia} t_i^a [\no{\cre{p} \ann{q}}, \no{\cre{a} \ann{i}}]
+\end{align*}
+In $\no{\cre{p} \ann{q}} \no{\cre{a} \ann{i}}$ the possible contractions are $\ann{q}$--$\cre{a}$ (particle line) and $\cre{p}$--$\ann{i}$ (hole line); in $\no{\cre{a} \ann{i}} \no{\cre{p} \ann{q}}$ there are none, because $\cre{a}$ and $\ann{i}$ are quasiparticle creation operators standing on the left:
+\begin{align*}
+[\no{\cre{p} \ann{q}}, \no{\cre{a} \ann{i}}] &= \no{\cre{p} \ann{q}} \no{\cre{a} \ann{i}} - \no{\cre{a} \ann{i}} \no{\cre{p} \ann{q}} \\
+&= \no{\cre{p} \ann{q} \cre{a} \ann{i}} + \delta_{qa} \no{\cre{p} \ann{i}} + \delta_{pi} \no{\ann{q} \cre{a}} + \delta_{pi} \delta_{qa} \\
+&\quad - \no{\cre{a} \ann{i} \cre{p} \ann{q}} \\
+&= \delta_{qa} \no{\cre{p} \ann{i}} + \delta_{pi} \no{\ann{q} \cre{a}} + \delta_{pi} \delta_{qa}
+\end{align*}
+The two uncontracted strings cancel: inside the braces every swap of two operators changes the sign (MEST p.~34), and moving $\cre{p} \ann{q}$ to the front of $\no{\cre{a} \ann{i} \cre{p} \ann{q}}$ takes four swaps. Hence
+\begin{align}
+[\FN, T_1] &= \sum_{pia} f_{pa} t_i^a \no{\cre{p} \ann{i}} + \sum_{qia} f_{iq} t_i^a \no{\ann{q} \cre{a}} + \sum_{ia} f_{ia} t_i^a \label{eq:cc-fnt1}
+\end{align}
+The same result follows from the anticommutation relations alone (“CC” p.~2):
+\begin{align*}
+[\cre{p} \ann{q}, \cre{a} \ann{i}] &= \cre{p} \ann{q} \cre{a} \ann{i} - \cre{a} \ann{i} \cre{p} \ann{q} \\
+&= \cre{p} (\delta_{aq} - \cre{a} \ann{q}) \ann{i} - \cre{a} (\delta_{ip} - \cre{p} \ann{i}) \ann{q} \\
+&= \delta_{aq} \cre{p} \ann{i} - \delta_{ip} \cre{a} \ann{q} \eqnote{the two four-operator terms cancel}
+\end{align*}
+and with $\cre{p} \ann{i} = \no{\cre{p} \ann{i}} + \delta_{pi}$ (hole line) and $\cre{a} \ann{q} = \no{\cre{a} \ann{q}} = -\no{\ann{q} \cre{a}}$ (no contraction: $a$ is a particle index) this is again $\delta_{qa} \no{\cre{p} \ann{i}} + \delta_{pi} \no{\ann{q} \cre{a}} + \delta_{pi} \delta_{qa}$.
+
+\textbf{Example 2: $\frac{1}{2} [[\FN, T_1], T_1]$.}
+\begin{align*}
+\frac{1}{2} [[\FN, T_1], T_1] &= \frac{1}{2} [\FN T_1 - T_1 \FN, T_1] \\
+&= \frac{1}{2} \FN T_1^2 - T_1 \FN T_1 + \frac{1}{2} T_1^2 \FN
+\end{align*}
+The three products are expanded in turn with the generalized Wick theorem.
+
+\emph{First product.}
+\begin{align*}
+\frac{1}{2} \FN T_1^2 &= \frac{1}{2} \sum_{pq} f_{pq} \sum_{ia} t_i^a \sum_{jb} t_j^b \no{\cre{p} \ann{q}} \no{\cre{a} \ann{i}} \no{\cre{b} \ann{j}}
+\end{align*}
+$\cre{p}$ can contract with $\ann{i}$ or $\ann{j}$ (hole lines), $\ann{q}$ with $\cre{a}$ or $\cre{b}$ (particle lines):
+\begin{align*}
+\no{\cre{p} \ann{q}} \no{\cre{a} \ann{i}} \no{\cre{b} \ann{j}} &= \no{\cre{p} \ann{q} \cre{a} \ann{i} \cre{b} \ann{j}} + \delta_{pi} \no{\ann{q} \cre{a} \cre{b} \ann{j}} + \delta_{pj} \no{\ann{q} \cre{a} \ann{i} \cre{b}} \\
+&\quad + \delta_{qa} \no{\cre{p} \ann{i} \cre{b} \ann{j}} + \delta_{qb} \no{\cre{p} \cre{a} \ann{i} \ann{j}} \\
+&\quad + \delta_{pi} \delta_{qa} \no{\cre{b} \ann{j}} - \delta_{pi} \delta_{qb} \no{\cre{a} \ann{j}} + \delta_{pj} \delta_{qa} \no{\ann{i} \cre{b}} + \delta_{pj} \delta_{qb} \no{\cre{a} \ann{i}}
+\end{align*}
+(The minus sign: bringing $\ann{i}$ next to $\cre{p}$ takes two swaps, then bringing $\cre{b}$ next to $\ann{q}$ takes one.) Multiplying by $f_{pq}$ and summing over $p, q$:
+\begin{align*}
+\frac{1}{2} \FN T_1^2 &= \frac{1}{2} \sum_{iajb} t_i^a t_j^b \sum_{pq} f_{pq} \no{\cre{p} \ann{q} \cre{a} \ann{i} \cre{b} \ann{j}} \\
+&\quad + \frac{1}{2} \sum_{iajb} t_i^a t_j^b \Big(\sum_q f_{iq} \no{\ann{q} \cre{a} \cre{b} \ann{j}} + \sum_q f_{jq} \no{\ann{q} \cre{a} \ann{i} \cre{b}}\Big) \\
+&\quad + \frac{1}{2} \sum_{iajb} t_i^a t_j^b \Big(\sum_p f_{pa} \no{\cre{p} \ann{i} \cre{b} \ann{j}} + \sum_p f_{pb} \no{\cre{p} \cre{a} \ann{i} \ann{j}}\Big) \\
+&\quad + \frac{1}{2} \sum_{iajb} t_i^a t_j^b \big(f_{ia} \no{\cre{b} \ann{j}} + f_{jb} \no{\cre{a} \ann{i}}\big) \\
+&\quad + \frac{1}{2} \sum_{iajb} t_i^a t_j^b \big({-f_{ib}} \no{\cre{a} \ann{j}} + f_{ja} \no{\ann{i} \cre{b}}\big)
+\end{align*}
+The two terms in each pair of brackets are equal: relabeling the dummy indices $i \leftrightarrow j$, $a \leftrightarrow b$ turns one into the other. For the first pair:
+\begin{align*}
+\sum_{iajb} t_i^a t_j^b \sum_q f_{iq} \no{\ann{q} \cre{a} \cre{b} \ann{j}} &= \sum_{iajb} t_j^b t_i^a \sum_q f_{jq} \no{\ann{q} \cre{b} \cre{a} \ann{i}} \eqnote{$i \leftrightarrow j$, $a \leftrightarrow b$} \\
+&= \sum_{iajb} t_i^a t_j^b \sum_q f_{jq} \no{\ann{q} \cre{a} \ann{i} \cre{b}} \eqnote{two swaps}
+\end{align*}
+and likewise for the others (in the last pair $-f_{ja} \no{\cre{b} \ann{i}} = f_{ja} \no{\ann{i} \cre{b}}$). So
+\begin{align}
+\frac{1}{2} \FN T_1^2 &= \frac{1}{2} \sum_{iajb} t_i^a t_j^b \sum_{pq} f_{pq} \no{\cre{p} \ann{q} \cre{a} \ann{i} \cre{b} \ann{j}} \notag \\
+&\quad + \sum_{iajb} t_i^a t_j^b \Big(\sum_q f_{jq} \no{\ann{q} \cre{a} \ann{i} \cre{b}} + \sum_p f_{pb} \no{\cre{p} \cre{a} \ann{i} \ann{j}}\Big) \notag \\
+&\quad + \sum_{iajb} t_i^a t_j^b \big(f_{jb} \no{\cre{a} \ann{i}} + f_{ja} \no{\ann{i} \cre{b}}\big) \label{eq:cc-ft1sq}
+\end{align}
+
+\emph{Second product.}
+\begin{align*}
+T_1 \FN T_1 &= \sum_{pq} f_{pq} \sum_{ia} t_i^a \sum_{jb} t_j^b \no{\cre{a} \ann{i}} \no{\cre{p} \ann{q}} \no{\cre{b} \ann{j}}
+\end{align*}
+The left $T_1$ cannot be contracted (its operators are quasiparticle creators standing on the left), so $\FN$ contracts only with the right $T_1$:
+\begin{align*}
+\no{\cre{a} \ann{i}} \no{\cre{p} \ann{q}} \no{\cre{b} \ann{j}} &= \no{\cre{a} \ann{i} \cre{p} \ann{q} \cre{b} \ann{j}} + \delta_{pj} \no{\cre{a} \ann{i} \ann{q} \cre{b}} \\
+&\quad + \delta_{qb} \no{\cre{a} \ann{i} \cre{p} \ann{j}} + \delta_{pj} \delta_{qb} \no{\cre{a} \ann{i}}
+\end{align*}
+Inside the braces the pair $\cre{a} \ann{i}$ moves past any operator with two swaps, so in the operator order of \eqref{eq:cc-ft1sq}:
+\begin{align}
+T_1 \FN T_1 &= \sum_{iajb} t_i^a t_j^b \sum_{pq} f_{pq} \no{\cre{p} \ann{q} \cre{a} \ann{i} \cre{b} \ann{j}} \notag \\
+&\quad + \sum_{iajb} t_i^a t_j^b \Big(\sum_q f_{jq} \no{\ann{q} \cre{a} \ann{i} \cre{b}} + \sum_p f_{pb} \no{\cre{p} \cre{a} \ann{i} \ann{j}}\Big) \notag \\
+&\quad + \sum_{iajb} t_i^a t_j^b f_{jb} \no{\cre{a} \ann{i}} \label{eq:cc-t1ft1}
+\end{align}
+
+\emph{Third product.} Both $T_1$'s stand on the left, so nothing can be contracted:
+\begin{align}
+\frac{1}{2} T_1^2 \FN &= \frac{1}{2} \sum_{iajb} t_i^a t_j^b \sum_{pq} f_{pq} \no{\cre{a} \ann{i} \cre{b} \ann{j} \cre{p} \ann{q}} \notag \\
+&= \frac{1}{2} \sum_{iajb} t_i^a t_j^b \sum_{pq} f_{pq} \no{\cre{p} \ann{q} \cre{a} \ann{i} \cre{b} \ann{j}} \label{eq:cc-t1sqf}
+\end{align}
+
+\emph{Sum.}
+\begin{align}
+\frac{1}{2} [[\FN, T_1], T_1] &= \eqref{eq:cc-ft1sq} - \eqref{eq:cc-t1ft1} + \eqref{eq:cc-t1sqf} \notag \\
+&= \sum_{iajb} t_i^a t_j^b f_{ja} \no{\ann{i} \cre{b}} \label{eq:cc-fnt1t1}
+\end{align}
+The six-operator strings cancel ($\frac{1}{2} - 1 + \frac{1}{2} = 0$), and so do the $f_{jq}$, $f_{pb}$ and $f_{jb}$ terms ($1 - 1 = 0$): these are the terms in which at least one $T_1$ is not contracted with $\FN$. In the surviving term $\FN$ is contracted with both $T_1$'s ($\cre{p}$ with $\ann{j}$, $\ann{q}$ with $\cre{a}$).
+
+In both examples the uncontracted strings are eliminated and only contracted terms survive: each commutator with $T$ keeps only the terms in which the new $T$ is contracted with what stands to its left. Generalizing (MEST p.~36): the only non-zero terms of the BCH expansion are those in which $\HN$ has at least one contraction with every $T$ on its right---the connected terms.
+
+\subsection{Truncation at Fourth Order}
+
+$\HN$ contains at most 4 operators ($\VN$), and each $T$ must take up at least one operator of $\HN$ for its contraction, so at most 4 $T$'s can be connected to $\HN$ at the same time. Five-fold and higher commutators vanish identically:
+\begin{align*}
+\bar{H} &= \HN  + (\HN  T)_c + \frac{1}{2} (\HN  T^2)_c + \frac{1}{6} (\HN  T^3)_c + \frac{1}{24} (\HN  T^4)_c + E_{\text{ref}} \\
+&= (\HN  e^T)_c + E_{\text{ref}}
+\end{align*}
+This is why the CC equations can be written exactly with a finite number of terms.
+
+\section{The Energy Equation}
+
+\begin{align*}
+E_{\text{CC}} - E_{\text{ref}} &= \langle \Phi_0|(\HN  e^T)_c|\Phi_0\rangle
+\end{align*}
+For $\langle\Phi_0|\dots|\Phi_0\rangle$ only fully contracted terms are non-zero. $\HN$ has at most 4 operators, so only $T_1$ (2 operators), $T_2$ (4) and $\frac{1}{2} T_1^2$ (4) can be fully contracted:
+\begin{align*}
+E_{\text{CC}} - E_{\text{ref}} &= \langle \Phi_0|(\FN  T_1)_c|\Phi_0\rangle \\
+&\quad + \langle \Phi_0|(\VN  T_2)_c|\Phi_0\rangle + \frac{1}{2} \langle \Phi_0|(\VN  T_1^2)_c|\Phi_0\rangle
+\end{align*}
+($\FN  T_2$ and $\VN  T_1$ have mismatched numbers of operators and cannot be fully contracted. “CC” pp.~6--8 compute these three terms one by one with Wick contractions.)
+
+\textbf{First term.} $\FN  T_1 = \sum_{pq} f_{pq} \sum_{ia} t_i^a \no{\cre{p} \ann{q}} \no{\cre{a} \ann{i}}$. Full contraction requires $\cre{p}$ to contract with $a_i$ (hole line: order $\cre{i} \ann{i}$, needs $p = i$) and $\ann{q}$ with $\cre{a}$ (particle line, $q = a$):
+\begin{align*}
+\langle \Phi_0|(\FN  T_1)_c|\Phi_0\rangle &= \sum_{ia} f_{ia} t_i^a
+\end{align*}
+This is the constant term of \eqref{eq:cc-fnt1}: $(\FN T_1)_c = [\FN, T_1]$, and its normal-ordered terms vanish in $\langle \Phi_0|\dots|\Phi_0\rangle$ (MEST p.~37). With HF orbitals $f_{ia} = 0$ (Brillouin's theorem) and the first term vanishes.
+
+\textbf{Second term.} $\VN  T_2 = \frac{1}{4} \sum \asym{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} \cdot \frac{1}{4} \sum t_{ij}^{ab} \no{\cre{a} \cre{b} \ann{j} \ann{i}}$, so
+\begin{align*}
+\langle \Phi_0|(\VN  T_2)_c|\Phi_0\rangle &= \frac{1}{16} \sum_{pqrs} \asym{pq}{rs} \sum_{ijab} t_{ij}^{ab} \langle \Phi_0|\no{\cre{p} \cre{q} \ann{s} \ann{r}} \no{\cre{a} \cre{b} \ann{j} \ann{i}}|\Phi_0\rangle
+\end{align*}
+$\cre{p}, \cre{q}$ must contract with $\ann{j}, \ann{i}$ (hole lines) and $\ann{s}, \ann{r}$ with $\cre{a}, \cre{b}$ (particle lines), in four ways. With the operators numbered $\cre{p} (1)\, \cre{q} (2)\, \ann{s} (3)\, \ann{r} (4)\allowbreak\, |\, \cre{a} (5)\, \cre{b} (6)\, \ann{j} (7)\, \ann{i} (8)$, the four full contractions $(1,8)(2,7)(3,6)(4,5)$, $(1,7)(2,8)(3,6)(4,5)$, $(1,8)(2,7)(3,5)(4,6)$ and $(1,7)(2,8)(3,5)(4,6)$ have 0, 1, 1 and 2 crossings (MEST p.~37, “CC” pp.~7--8):
+\begin{align*}
+\langle \Phi_0|\no{\cre{p} \cre{q} \ann{s} \ann{r}} \no{\cre{a} \cre{b} \ann{j} \ann{i}}|\Phi_0\rangle &= \delta_{pi} \delta_{qj} \delta_{sb} \delta_{ra} - \delta_{pj} \delta_{qi} \delta_{sb} \delta_{ra} \\
+&\quad - \delta_{pi} \delta_{qj} \delta_{sa} \delta_{rb} + \delta_{pj} \delta_{qi} \delta_{sa} \delta_{rb} \\
+\langle \Phi_0|(\VN  T_2)_c|\Phi_0\rangle &= \frac{1}{16} \sum_{ijab} t_{ij}^{ab} (\asym{ij}{ab} - \asym{ji}{ab} - \asym{ij}{ba} + \asym{ji}{ba}) \\
+&= \frac{1}{4} \sum_{ijab} \asym{ij}{ab} t_{ij}^{ab} \eqnote{$\asym{ji}{ab} = \asym{ij}{ba} = -\asym{ij}{ab}$}
+\end{align*}
+The four contractions are equal, and $4 \cdot \frac{1}{16} = \frac{1}{4}$.
+
+\textbf{Third term.} $T_1^2 = \sum_{ia} \sum_{jb} t_i^a t_j^b \{\cre{a} \ann{i}\}\{\cre{b} \ann{j}\}$, so
+\begin{align*}
+\frac{1}{2} \langle \Phi_0|(\VN  T_1^2)_c|\Phi_0\rangle &= \frac{1}{8} \sum_{pqrs} \asym{pq}{rs} \sum_{iajb} t_i^a t_j^b \langle \Phi_0|\no{\cre{p} \cre{q} \ann{s} \ann{r}} \no{\cre{a} \ann{i}} \no{\cre{b} \ann{j}}|\Phi_0\rangle
+\end{align*}
+The $\cre{p}, \cre{q}$ of $\VN$ must contract with the two hole operators $\ann{i}, \ann{j}$, and $\ann{s}, \ann{r}$ with the two particle operators $\cre{a}, \cre{b}$, again in four ways. With the operators numbered $\cre{p} (1)\, \cre{q} (2)\, \ann{s} (3)\, \ann{r} (4)\allowbreak\, |\, \cre{a} (5)\, \ann{i} (6)\allowbreak\, |\, \cre{b} (7)\, \ann{j} (8)$, the four full contractions $(1,8)(2,6)(3,7)(4,5)$, $(1,8)(2,6)(3,5)(4,7)$, $(1,6)(2,8)(3,7)(4,5)$ and $(1,6)(2,8)(3,5)(4,7)$ have 1, 2, 2 and 3 crossings (MEST p.~37):
+\begin{align*}
+\langle \Phi_0|\no{\cre{p} \cre{q} \ann{s} \ann{r}} \no{\cre{a} \ann{i}} \no{\cre{b} \ann{j}}|\Phi_0\rangle &= -\delta_{pj} \delta_{qi} \delta_{sb} \delta_{ra} + \delta_{pj} \delta_{qi} \delta_{sa} \delta_{rb} \\
+&\quad + \delta_{pi} \delta_{qj} \delta_{sb} \delta_{ra} - \delta_{pi} \delta_{qj} \delta_{sa} \delta_{rb} \\
+\frac{1}{2} \langle \Phi_0|(\VN  T_1^2)_c|\Phi_0\rangle &= \frac{1}{8} \sum_{iajb} t_i^a t_j^b (-\asym{ji}{ab} + \asym{ji}{ba} + \asym{ij}{ab} - \asym{ij}{ba}) \\
+&= \frac{1}{2} \sum_{ijab} \asym{ij}{ab} t_i^a t_j^b \eqnote{$4 \cdot \frac{1}{8} = \frac{1}{2}$}
+\end{align*}
+Altogether:
+\begin{align}\label{eq:ecc}
+E_{\text{CC}} &= E_{\text{ref}} + \sum_{ia} f_{ia} t_i^a + \frac{1}{4} \sum_{ijab} \asym{ij}{ab} t_{ij}^{ab} \\
+&\quad + \frac{1}{2} \sum_{ijab} \asym{ij}{ab} t_i^a t_j^b \notag
+\end{align}
+This formula holds for CCSD, CCSDT, \ldots\ (higher $T_n$ cannot be fully contracted with $\HN$).
+
+\section{The CCD Amplitude Equations}
+
+Take $T = T_2$:
+\begin{align*}
+0 &= \langle \Phi_{ij}^{ab}|(\HN  + \HN  T_2 + \frac{1}{2} \HN  T_2^2)_c|\Phi_0\rangle
+\end{align*}
+($T_2^3$ has 12 operators; after connecting to $\HN$ at least 8 remain, which cannot be fully contracted with the 4 of $\langle \Phi_{ij}^{ab}|$.)
+
+\subsection{Zeroth-Order and Fock Terms}
+
+$\langle \Phi_{ij}^{ab}|\VN |\Phi_0\rangle = \asym{ab}{ij}$ (Chapter 7). The Fock term $\langle \Phi_{ij}^{ab}|(\FN  T_2)_c|\Phi_0\rangle$: one operator of $\FN$ contracts with $T_2$ and the other with $\langle \Phi_{ij}^{ab}| = \langle \Phi_0|\{\cre{i} \cre{j} \ann{b} \ann{a}\}$ on the left. Two classes: particle lines ($f_{bc}$ replaces the $c$ of $T_2$ by $b$) and hole lines ($f_{kj}$). Result:
+\begin{align*}
+\langle \Phi_{ij}^{ab}|(\FN  T_2)_c|\Phi_0\rangle &= P(ab) \sum_c f_{bc} t_{ij}^{ac} - P(ij) \sum_k f_{kj} t_{ik}^{ab}
+\end{align*}
+Write out the sign for one particle-line term. Number the operators 1--10 (the four operators of $T_2$ written last):
+\begin{align*}
+\cre{i} (1)  \cre{j} (2)  \ann{b} (3)  \ann{a} (4)  |  \cre{p} (5)  \ann{q} (6)  |  \cre{c} (7)  \cre{d} (8)  \ann{l} (9)  \ann{k} (10)
+\end{align*}
+Take $\ann{b}$--$\cre{p}$ ($p = b$), $\ann{q}$--$\cre{c}$ ($q = c$), $\ann{a}$--$\cre{d}$ ($d = a$), $\cre{j}$--$a_l$ ($l = j$), $\cre{i}$--$a_k$ ($k = i$). Of the contraction pairs $(1,10), (2,9), (3,5), (4,8), (6,7)$ only $(3,5)$ and $(4,8)$ cross, sign $-$, value $-f_{bc} t_{ij}^{ca} = +f_{bc} t_{ij}^{ac}$. If instead $\ann{a}$--$\cre{p}$ and $\ann{b}$--$\cre{d}$, the contraction lines $(4,5), (3,8), (6,7), (2,9), (1,10)$ no longer cross, and the value is $f_{ac} t_{ij}^{cb} = -f_{ac} t_{ij}^{bc}$. Together they make $P(ab) \sum_c f_{bc} t_{ij}^{ac}$: the external indices $a, b$ can come from $\FN$ or from $T_2$, and the two possibilities differ by a sign.
+
+Here $P(ab) = 1 - P_{ab}$, where $P_{ab}$ interchanges the labels $a$ and $b$ in the expression it acts on; likewise $P(ij) = 1 - P_{ij}$, and $P(ij) P(ab)$ applies both (“CC” p.~17):
+\begin{align*}
+P(ab) \sum_c f_{bc} t_{ij}^{ac} &= \sum_c f_{bc} t_{ij}^{ac} - \sum_c f_{ac} t_{ij}^{bc} \\
+-P(ij) \sum_k f_{kj} t_{ik}^{ab} &= -\sum_k f_{kj} t_{ik}^{ab} + \sum_k f_{ki} t_{jk}^{ab}
+\end{align*}
+An antisymmetrizer is needed only for a pair of external indices that sit on different factors ($a$ on $t$ and $b$ on $f$ in $f_{bc} t_{ij}^{ac}$); a pair that sits on one antisymmetric factor ($i, j$ in $t_{ij}^{ac}$) is antisymmetric already (“CC” pp.~16--17, MEST p.~43).
+
+\subsection{The Complete CCD Equations}
+
+Adding the three linear terms of $(\VN T_2)_c$ (the particle--particle and hole--hole ladder terms and the ring term) and the four quadratic terms of $\frac{1}{2} (\VN T_2^2)_c$ gives the complete CCD equations:
+\begin{align}
+0 &= \asym{ab}{ij} + P(ab) \sum_c f_{bc} t_{ij}^{ac} - P(ij) \sum_k f_{kj} t_{ik}^{ab} \notag \\
+&\quad + \frac{1}{2} \sum_{cd} \asym{ab}{cd} t_{ij}^{cd} + \frac{1}{2} \sum_{kl} \asym{kl}{ij} t_{kl}^{ab} + P(ij) P(ab) \sum_{kc} \asym{kb}{cj} t_{ik}^{ac} \notag \\
+&\quad + \frac{1}{4} \sum_{klcd} \asym{kl}{cd} t_{ij}^{cd} t_{kl}^{ab} + P(ij) \sum_{klcd} \asym{kl}{cd} t_{ik}^{ac} t_{jl}^{bd} \notag \\
+&\quad - \frac{1}{2} P(ab) \sum_{klcd} \asym{kl}{cd} t_{ij}^{ac} t_{kl}^{bd} - \frac{1}{2} P(ij) \sum_{klcd} \asym{kl}{cd} t_{ik}^{ab} t_{jl}^{cd} \label{eq:ccd}
+\end{align}
+This agrees with Shavitt--Bartlett Eq.~(9.126) (p.~288 of the book, derived with diagrams, §9.5) and with Eq.~(15.10) of Python for QC (which factorizes the quadratic terms into intermediates).
+
+The residual $R_{ij}^{ab} = \langle \Phi_{ij}^{ab}|\bar{H}|\Phi_0\rangle$ vanishes at convergence. The iteration starts from $t_{ij}^{ab} = \asym{ij}{ab} / D_{ij}^{ab}$, exactly the first-order amplitude (inserting it into the energy formula gives the MP2 energy), and updates $t \leftarrow t + R / D$ with $D_{ij}^{ab} = f_{ii} + f_{jj} - f_{aa} - f_{bb}$.
+
+Implementation: \code{ccd} in \code{hf\_to\_cc/ccd.py}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+R = oovv + quad(t_o)
+R += 0.5 * np.einsum("abcd, ijcd->ijab", vvvv, t_o)
+R += 0.5 * np.einsum("klij, klab->ijab", oooo, t_o)
+X = np.einsum("kbcj, ikac->ijab", ovvo, t_o)
+R += X - X.transpose(1, 0, 2, 3) - X.transpose(0, 1, 3, 2) + X.transpose(1, 0, 3, 2)
+t_n = R / D
+\end{lstlisting}
+Line by line, \eqref{eq:ccd}: $\asym{ab}{ij}$ (\code{oovv}, equal to $\asym{ij}{ab}$ for real orbitals) and the four quadratic terms (\code{quad}, called from \code{provided.py}); the two ladder terms; the ring term $X_{ij}^{ab} = \sum_{kc} \asym{kb}{cj} t_{ik}^{ac}$, whose three transposes are $P(ij)$, $P(ab)$ and $P(ij) P(ab)$ with their signs. The two Fock terms are absent: for canonical orbitals they equal $-D_{ij}^{ab} t_{ij}^{ab}$, so moving them to the other side gives $t = R / D$ with $R$ the remaining terms.
+\end{codemap}
+
+\begin{summary}
+\begin{itemize}
+\item $\bar{H} = e^{-T} H e^T = (\HN  e^T)_c + E_{\text{ref}}$; the BCH expansion terminates naturally at the fourfold commutator.
+\item The energy depends only on $T_1$ and $T_2$: $E = \sum f_{ia} t_{ia} + \frac{1}{4} \sum \asym{ij}{ab} t_{ij}^{ab} + \frac{1}{2} \sum \asym{ij}{ab} t_i^a t_j^b$.
+\item CCD equations = zeroth order + Fock + three linear terms (two ladders, one ring) + four quadratic terms.
+\end{itemize}
+\end{summary}

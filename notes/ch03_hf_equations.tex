@@ -1,0 +1,265 @@
+\chapter{The Hartree--Fock Equations}
+\label{ch:hf}
+
+The previous chapter gave the energy of a single determinant, \eqref{eq:E-det}. The HF method is: among all single determinants, find the one with the lowest energy. This chapter derives the HF equations by functional variation, following the order of MEST pp.~7--12 and writing out every step; it then discusses canonicalization, orbital energies and Brillouin's theorem.
+
+\textbf{Parallel reading.} “qc” pp.~59--61 derive the HF equations with Lagrange multipliers along the same route as this chapter; p.~66 discusses orbital energies; “Adv qc” p.~31 and MEST p.~27 cover Brillouin's theorem. Textbooks: Szabo--Ostlund §3.1--3.3 (§3.2.2 minimization of the single-determinant energy, §3.3.2 Brillouin's theorem); Helgaker §10.1--10.5 (derivation with exponentially parametrized orbital rotations); ESQC collection Ch.~25. ESQC exercise 77.6 derives the HF conditions from the first-order variation of a determinant and makes a good exercise.
+
+\section{Statement of the Problem}
+
+The energy is a functional of the $N$ spin orbitals:
+\begin{align*}
+E[\{\chi\}] &= \sum_i \langle i|h|i\rangle + \frac{1}{2} \sum_{ij} \asym{ij}{ij}
+\end{align*}
+The constraint is orthonormality of the orbitals: $\langle i | j \rangle = \delta_{ij}$. Since $\langle j|i\rangle = \langle i|j\rangle^*$, the independent real conditions are $N$ normalization conditions plus $N(N-1)/2$ complex orthogonality conditions (each with a real and an imaginary part), $N^2$ in total; for real orbitals there are $N(N+1)/2$. Writing one multiplier for every pair $(i, j)$ does no harm; the relation between the extra multipliers is given in the next section (the multiplier matrix is Hermitian).
+
+The standard way to find an extremum under constraints is the method of Lagrange multipliers: give each constraint an undetermined coefficient (a multiplier), subtract ``multiplier $\times$ constraint'' from the energy to obtain a new function $L$, and then find its stationary points by varying all variables freely, as if there were no constraints; the values of the multipliers are fixed at the end by the constraints themselves. The reason: at the lowest point under the constraints, no change that respects the constraints alters the energy (to first order), so the energy can change only along directions that violate the constraints, and subtracting ``multiplier $\times$ constraint'' exactly cancels that change. The linear variation of Chapter 1 has a single constraint (normalization), which the Rayleigh quotient removes; the multiplier method gives the same equation (real coefficients):
+\begin{align*}
+L &= c^{\mathsf T} H c - E (c^{\mathsf T} c - 1) \\
+\frac{\partial L}{\partial c_k} &= 2 (H c)_k - 2 E c_k = 0 \quad \Rightarrow \quad H c = E c
+\end{align*}
+The multiplier $E$ is the energy. Here there are $N^2$ constraints and no such quotient is available, so this section handles them directly with multipliers (the alternative is to write the orbitals as unitary rotations of reference orbitals, which satisfy the constraints automatically). The HF multipliers also have a clear meaning: as shown below, they are the matrix elements of the Fock operator between occupied orbitals, and after diagonalization they are the orbital energies. Introduce multipliers $\epsilon_{ji}$:
+\begin{align}\label{eq:hf-lagrangian}
+L[\{\chi\}] &= E[\{\chi\}] - \sum_{ij} \epsilon_{ji} (\langle i|j\rangle - \delta_{ij})
+\end{align}
+and require $L$ to be stationary under arbitrary variations of the orbitals: $\delta L = 0$.
+
+\section{The Lagrange Multipliers Form a Hermitian Matrix}
+
+$E$ is real, and $L$ must be real as well (otherwise ``minimization'' makes no sense). Since $E$ and $\delta_{ij}$ are real, $\sum_{ij} \epsilon_{ji} \langle i|j\rangle$ must be real:
+\begin{align*}
+\sum_{ij} \epsilon_{ji} \langle i|j\rangle &= \left( \sum_{ij} \epsilon_{ji} \langle i|j\rangle \right)^* \\
+&= \sum_{ij} \epsilon_{ji}^* \langle j|i\rangle
+\end{align*}
+Swap the dummy indices $i \leftrightarrow j$ on the right:
+\begin{align*}
+\sum_{ij} \epsilon_{ji}^* \langle j|i\rangle &= \sum_{ij} \epsilon_{ij}^* \langle i|j\rangle
+\end{align*}
+So $\sum_{ij} (\epsilon_{ji} - \epsilon_{ij}^*) \langle i|j\rangle = 0$. This holds for arbitrary orbitals (arbitrary values of $\langle i | j \rangle$), hence
+\begin{align*}
+\epsilon_{ji} &= \epsilon_{ij}^*, \quad \text{i.e.} \quad \epsilon^\dagger = \epsilon
+\end{align*}
+MEST pp.~7--8 argue slightly differently (requiring the pair of terms $\epsilon_{ij} \langle i|j\rangle + \epsilon_{ji} \langle j|i\rangle$ to be real), with the same conclusion.
+
+\section{First-Order Variation of the Energy}
+
+Change one orbital $\chi_m$ into $\chi_m + \delta \chi_m$ and keep the others fixed (the last subsection of this section shows that varying all orbitals at once gives the same condition). Keep only first-order terms.
+
+\subsection{One-Body Part}
+
+\begin{align*}
+\delta \sum_i \langle i|h|i\rangle &= \langle m + \delta m|h|m + \delta m\rangle - \langle m|h|m\rangle \\
+&= \langle \delta m|h|m\rangle + \langle m|h|\delta m\rangle + O(\delta^2)
+\end{align*}
+By the Hermiticity of $h$, $\langle m|h|\delta m\rangle = \langle h m|\delta m\rangle = \langle \delta m|h|m\rangle^*$, so
+\begin{align*}
+\delta \left( \sum_i \langle i|h|i\rangle \right) &= \langle \delta m|h|m\rangle + \text{c.c.}
+\end{align*}
+(c.c.\ denotes the complex conjugate of the preceding terms.)
+
+\subsection{Two-Body Part}
+
+This is where mistakes are easiest, so write it term by term. In the two-body energy $\frac{1}{2} \sum_{ij} \asym{ij}{ij}$ the orbital $m$ appears in three classes of terms: $i = m, j \neq m$; $i \neq m, j = m$; $i = j = m$. The last class, $\asym{mm}{mm} = 0$, vanishes identically and stays zero after the variation (the antisymmetrized integral satisfies this for any $\chi_m$), so it can be ignored. In the notation of MEST pp.~9--10, split into three parts:
+\begin{align*}
+\frac{1}{2} \sum_{ij} \asym{ij}{ij} &= \frac{1}{2} \sum_{i \neq m} \sum_{j \neq m} \asym{ij}{ij} \\
+&\quad + \frac{1}{2} \sum_{j \neq m} \asym{mj}{mj} + \frac{1}{2} \sum_{i \neq m} \asym{im}{im}
+\end{align*}
+The first part does not depend on $\chi_m$. The third part equals the second after exchanging the integration variables of the two electrons ($x_1 \leftrightarrow x_2$):
+\begin{align*}
+\asym{im}{im} &= \int dx_1 dx_2 \chi_i^*(1) \chi_m^*(2) r_{12}^{-1} [\chi_i(1) \chi_m(2) - \chi_m(1) \chi_i(2)] \\
+& = \int dx_2 dx_1 \chi_i^*(2) \chi_m^*(1) r_{12}^{-1} [\chi_i(2) \chi_m(1) - \chi_m(2) \chi_i(1)] = \asym{mi}{mi}
+\end{align*}
+So the part that depends on $m$ is $\sum_{j \neq m} \asym{mj}{mj}$. Now vary. In $\asym{mj}{mj}$, $\chi_m$ appears twice (the $\chi_m^*$ on the left and the $\chi_m$ on the right), and the first-order variation has two terms:
+\begin{align*}
+\delta \asym{mj}{mj} &= \asym{\delta m j}{m j} + \asym{m j}{\delta m j}
+\end{align*}
+The second term is the complex conjugate of the first:
+\begin{align*}
+\asym{m j}{\delta m j} &= \int dx_1 dx_2 \chi_m^*(1) \chi_j^*(2) r_{12}^{-1} [\delta \chi_m(1) \chi_j(2) - \chi_j(1) \delta \chi_m(2)] \\
+&= \left( \int dx_1 dx_2 \delta \chi_m^*(1) \chi_j^*(2) r_{12}^{-1} [\chi_m(1) \chi_j(2) - \chi_j(1) \chi_m(2)] \right)^* \\
+&= \asym{\delta m j}{m j}^*
+\end{align*}
+(Second equality: conjugate the bracket as a whole and exchange $x_1, x_2$ in the exchange term, then compare with the first term.) Hence
+\begin{align*}
+\delta \left( \frac{1}{2} \sum_{ij} \asym{ij}{ij} \right) &= \sum_j \asym{\delta m j}{m j} + \text{c.c.}
+\end{align*}
+where the $j = m$ term has been added back, since $\asym{\delta m m}{m m} = \phys{\delta m m}{m m} - \phys{\delta m m}{m m} = 0$.
+
+\subsection{Constraint Part}
+
+\begin{align*}
+\delta \sum_{ij} \epsilon_{ji} \langle i|j\rangle &= \sum_j \epsilon_{jm} \langle \delta m|j\rangle + \sum_i \epsilon_{mi} \langle i|\delta m\rangle \\
+&= \sum_j \epsilon_{jm} \langle \delta m|j\rangle + \text{c.c.}
+\end{align*}
+The second equality uses $\epsilon_{mi} \langle i|\delta m\rangle = (\epsilon_{mi}^* \langle\delta m|i\rangle)^* = (\epsilon_{im} \langle\delta m|i\rangle)^*$ and renames the dummy index $i$ to $j$.
+
+\subsection{Varying All Orbitals at Once}
+
+MEST pp.~7--8 vary all orbitals simultaneously, $\chi_i \rightarrow \chi_i + \delta \chi_i$ for $i = 1, \dots, N$, and arrive at the same condition. To first order,
+\begin{align*}
+\delta L &= \sum_i \delta \langle i|h|i\rangle + \frac{1}{2} \sum_{ij} \delta [\phys{ij}{ij} - \phys{ij}{ji}] - \sum_{ij} \epsilon_{ji}\, \delta \langle i|j\rangle \eqnote{$\delta_{ij}$ is a constant}
+\end{align*}
+The one-body part is the one-body result above, summed over $i$: $\sum_i \delta \langle i|h|i\rangle = \sum_i \langle \delta i|h|i\rangle + \sum_i \langle i|h|\delta i\rangle = \sum_i \langle \delta i|h|i\rangle + \text{c.c.}$ In the two-body part both orbitals of every integral vary, which gives eight first-order terms:
+\begin{align*}
+\frac{1}{2} \sum_{ij} \delta [\phys{ij}{ij} - \phys{ij}{ji}] &= \frac{1}{2} \sum_{ij} \phys{\delta i\, j}{ij} + \frac{1}{2} \sum_{ij} \phys{i\, \delta j}{ij} + \frac{1}{2} \sum_{ij} \phys{ij}{\delta i\, j} + \frac{1}{2} \sum_{ij} \phys{ij}{i\, \delta j} \\
+&\quad - \frac{1}{2} \sum_{ij} \phys{\delta i\, j}{ji} - \frac{1}{2} \sum_{ij} \phys{i\, \delta j}{ji} - \frac{1}{2} \sum_{ij} \phys{ij}{\delta j\, i} - \frac{1}{2} \sum_{ij} \phys{ij}{j\, \delta i}
+\end{align*}
+The second term equals the first, and the sixth equals the fifth (rename the summation indices $i \leftrightarrow j$, then the integration variables $x_1 \leftrightarrow x_2$):
+\begin{align*}
+\sum_{ij} \phys{i\, \delta j}{ij} &= \sum_{ij} \phys{j\, \delta i}{ji} = \sum_{ij} \int dx_1 dx_2\, \chi_j^*(1) \delta \chi_i^*(2) r_{12}^{-1} \chi_j(1) \chi_i(2) \eqnote{$i \leftrightarrow j$} \\
+&= \sum_{ij} \int dx_1 dx_2\, \delta \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_i(1) \chi_j(2) = \sum_{ij} \phys{\delta i\, j}{ij} \eqnote{$x_1 \leftrightarrow x_2$}
+\end{align*}
+\begin{align*}
+\sum_{ij} \phys{i\, \delta j}{ji} &= \sum_{ij} \phys{j\, \delta i}{ij} = \sum_{ij} \int dx_1 dx_2\, \chi_j^*(1) \delta \chi_i^*(2) r_{12}^{-1} \chi_i(1) \chi_j(2) \eqnote{$i \leftrightarrow j$} \\
+&= \sum_{ij} \int dx_1 dx_2\, \delta \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_j(1) \chi_i(2) = \sum_{ij} \phys{\delta i\, j}{ji} \eqnote{$x_1 \leftrightarrow x_2$}
+\end{align*}
+The terms with $\delta$ in the ket are complex conjugates of those with $\delta$ in the bra: $\phys{ij}{\delta i\, j} = \phys{\delta i\, j}{ij}^*$, $\phys{ij}{i\, \delta j} = \phys{i\, \delta j}{ij}^*$, and, after renaming $i \leftrightarrow j$, $\phys{ji}{\delta i\, j} = \phys{\delta i\, j}{ji}^*$, $\phys{ji}{i\, \delta j} = \phys{i\, \delta j}{ji}^*$. So the eight terms collapse to two and their conjugates:
+\begin{align*}
+\frac{1}{2} \sum_{ij} \delta [\phys{ij}{ij} - \phys{ij}{ji}] &= \frac{1}{2} \sum_{ij} [2 \phys{\delta i\, j}{ij} - 2 \phys{\delta i\, j}{ji}] + \text{c.c.} \\
+&= \sum_{ij} \asym{\delta i\, j}{ij} + \text{c.c.}
+\end{align*}
+The constraint part, with the second-order term $\langle \delta i|\delta j\rangle$ dropped:
+\begin{align*}
+\sum_{ij} \epsilon_{ji}\, \delta \langle i|j\rangle &= \sum_{ij} \epsilon_{ji} \langle \delta i|j\rangle + \sum_{ij} \epsilon_{ji} \langle i|\delta j\rangle = \sum_{ij} \epsilon_{ji} \langle \delta i|j\rangle + \sum_{ij} \epsilon_{ij} \langle j|\delta i\rangle \eqnote{$i \leftrightarrow j$} \\
+&= \sum_{ij} \epsilon_{ji} \langle \delta i|j\rangle + \sum_{ij} \epsilon_{ji}^* \langle \delta i|j\rangle^* = \sum_{ij} \epsilon_{ji} \langle \delta i|j\rangle + \text{c.c.} \eqnote{$\epsilon_{ij} = \epsilon_{ji}^*$}
+\end{align*}
+Altogether,
+\begin{align*}
+\delta L &= \sum_i \Big[ \langle \delta i|h|i\rangle + \sum_j \asym{\delta i\, j}{ij} - \sum_j \epsilon_{ji} \langle \delta i|j\rangle \Big] + \text{c.c.} = 0
+\end{align*}
+Term $i$ of this sum is what the three parts above give for $m = i$. The $\delta \chi_i$ are independent, so setting all of them to zero except one, $\delta \chi_m$, leaves exactly the one-orbital variation: varying all orbitals at once gives the same condition, for every $m$, as varying them one at a time. The next section works it out.
+
+\section{The Hartree--Fock Equations (Non-canonical Form)}
+
+Combining the three parts:
+\begin{align*}
+\delta L &= \langle \delta m|h|m\rangle + \sum_j \asym{\delta m j}{m j} \\
+&\quad - \sum_j \epsilon_{jm} \langle \delta m|j\rangle + \text{c.c.} = 0
+\end{align*}
+In integral form (with electron 1 as the ``varied electron''):
+\begin{align*}
+\delta L &= \int dx_1 \delta \chi_m^*(1) \left[ h(1) \chi_m(1) + \sum_j \int dx_2 \chi_j^*(2) r_{12}^{-1} \chi_j(2) \chi_m(1) \right. \\
+& \left. - \sum_j \int dx_2 \chi_j^*(2) r_{12}^{-1} \chi_m(2) \chi_j(1) - \sum_j \epsilon_{jm} \chi_j(1) \right] + \text{c.c.} = 0
+\end{align*}
+Call the part before c.c.\ $Z$; then $\delta L = Z + Z^* = 2 \operatorname{Re} Z$. Replacing $\delta \chi_m$ by $i\, \delta\chi_m$ turns $Z$ into $-iZ$ and gives $\delta L = 2 \operatorname{Im} Z$; both vanish, so $Z = 0$ for every $\delta \chi_m$, and the bracket must vanish identically. Define the Coulomb and exchange operators:
+\begin{align*}
+\hat{J}_j(1) \chi(1) &= \left[ \int dx_2 \chi_j^*(2) r_{12}^{-1} \chi_j(2) \right] \chi(1)
+\end{align*}
+\begin{align*}
+\hat{K}_j(1) \chi(1) &= \left[ \int dx_2 \chi_j^*(2) r_{12}^{-1} \chi(2) \right] \chi_j(1)
+\end{align*}
+$\hat{J}_j$ is local: it simply multiplies by the electrostatic potential of the charge distribution of electron $j$. $\hat{K}_j$ is non-local: it ``moves'' the function $\chi$ it acts on into the integral and then multiplies by $\chi_j$. Define the Fock operator
+\begin{align}\label{eq:fock-op}
+\hat{f}(1) &= h(1) + \sum_j [\hat{J}_j(1) - \hat{K}_j(1)]
+\end{align}
+The condition that the bracket vanishes becomes
+\begin{align}\label{eq:hf-noncanonical}
+\hat{f} |\chi_m\rangle &= \sum_j \epsilon_{jm} |\chi_j\rangle, \quad m = 1, \dots, N
+\end{align}
+These are the non-canonical HF equations. Multiplying from the left by $\langle \chi_i|$ shows $\epsilon_{im} = \langle i|\hat{f}|m\rangle$: the matrix of Lagrange multipliers is the matrix of the Fock operator between occupied orbitals.
+
+\section{Unitary Invariance and Canonicalization}
+
+\subsection{The Determinant Is Invariant Under Unitary Transformations of the Occupied Orbitals}
+
+Apply a unitary transformation to the occupied orbitals, $\chi'_i = \sum_j \chi_j U_{ji}$, $U^\dagger U = 1$. The determinant is the determinant of the matrix $A_{ki} = \chi_i(x_k)$; after the transformation $A' = A U$ and
+\begin{align*}
+\det(A') &= \det(A) \det(U), \quad |\det U|^2 = \det(U^\dagger) \det(U) = \det(U^\dagger U) \\
+&= 1 \quad \Rightarrow \quad \det U = e^{i \theta}
+\end{align*}
+So the new and old determinants differ only by a phase, and all physical quantities (energy, density) are unchanged.
+
+MEST pp.~11--12 check this intuitively with a two-orbital example; here it is expanded in full. Take $U = \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & 1 \\ -1 & 1 \end{pmatrix}$ ($\det U = \frac{1}{2} (1 + 1) = 1$); with $\chi'_i = \sum_j \chi_j U_{ji}$,
+\begin{align*}
+\chi'_1 &= \frac{1}{\sqrt{2}} (\chi_1 - \chi_2), \quad \chi'_2 = \frac{1}{\sqrt{2}} (\chi_1 + \chi_2)
+\end{align*}
+The new determinant (omitting the normalization factor $\frac{1}{\sqrt{2}}$) is
+\begin{align*}
+\chi'_1(1) \chi'_2(2) - \chi'_2(1) \chi'_1(2) &= \frac{1}{2} [(\chi_1(1) - \chi_2(1))(\chi_1(2) + \chi_2(2)) - (\chi_1(1) + \chi_2(1))(\chi_1(2) - \chi_2(2))]
+\end{align*}
+Expanding each product into four terms:
+\begin{align*}
+&= \frac{1}{2} [\chi_1(1) \chi_1(2) + \chi_1(1) \chi_2(2) - \chi_2(1) \chi_1(2) - \chi_2(1) \chi_2(2) \\
+&\quad - \chi_1(1) \chi_1(2) + \chi_1(1) \chi_2(2) - \chi_2(1) \chi_1(2) + \chi_2(1) \chi_2(2)] \\
+&= \chi_1(1) \chi_2(2) - \chi_2(1) \chi_1(2)
+\end{align*}
+The ``two electrons in the same orbital'' terms $\chi_1(1) \chi_1(2)$ and $\chi_2(1) \chi_2(2)$ cancel, and what remains is exactly the original determinant, consistent with $\det U = 1$. The shapes of the individual orbitals have changed completely, yet the determinant has not changed at all: the HF wave function is determined by the occupied space, not by a particular set of orbitals.
+
+\subsection{The Fock Operator Is Invariant}
+
+$\hat{J}$ and $\hat{K}$ depend on the orbitals only through $\sum_j |\chi_j\rangle\langle\chi_j|$. For the Coulomb operator:
+\begin{align*}
+\sum_j \hat{J}'_j(1) &= \sum_j \int d x_2 \, \chi'^*_j(2) r_{12}^{-1} \chi'_j(2) \\
+&= \sum_j \sum_{kl} U_{kj}^* U_{lj} \int d x_2 \, \chi_k^*(2) r_{12}^{-1} \chi_l(2) \\
+&= \sum_{kl} (U U^\dagger)_{lk} \int d x_2 \, \chi_k^*(2) r_{12}^{-1} \chi_l(2) \\
+&= \sum_k \hat{J}_k(1)
+\end{align*}
+The derivation for the exchange operator is the same, except that the function $\chi$ being acted on enters the integral and $\chi'_j$ stays outside:
+\begin{align*}
+\sum_j \hat{K}'_j(1) \chi(1) &= \sum_j \left[ \int dx_2 \chi'^*_j(2) r_{12}^{-1} \chi(2) \right] \chi'_j(1) \\
+&= \sum_{kl} (U U^\dagger)_{lk} \left[ \int dx_2 \chi_k^*(2) r_{12}^{-1} \chi(2) \right] \chi_l(1) \\
+&= \sum_k \hat{K}_k(1) \chi(1)
+\end{align*}
+So $\hat{f}' = \hat{f}$.
+
+\subsection{Transformation and Diagonalization of the Multiplier Matrix}
+
+\begin{align*}
+\epsilon'_{ij} &= \langle \chi'_i | \hat{f} | \chi'_j \rangle \\
+&= \sum_{kl} U_{ki}^* \langle k | \hat{f} | l \rangle U_{lj} = (U^\dagger \epsilon U)_{ij}
+\end{align*}
+$\epsilon$ is Hermitian, so $U$ can always be chosen to make $U^\dagger \epsilon U$ diagonal. In this set of orbitals \eqref{eq:hf-noncanonical} becomes an eigenvalue equation:
+\begin{align}\label{eq:hf-canonical}
+\hat{f} | \chi_i \rangle &= \epsilon_i | \chi_i \rangle
+\end{align}
+These are the canonical HF equations, and $\epsilon_i$ are the orbital energies. The virtual orbitals can be treated the same way: by \eqref{eq:hf-noncanonical}, $\hat{f}$ maps every occupied orbital to a combination of occupied orbitals, i.e.\ the occupied space $O$ is invariant under $\hat{f}$; hence $\langle a|\hat{f}|i\rangle = 0$ for any $|a\rangle$ in the orthogonal complement of $O$, and since $\hat{f}$ is Hermitian also $\langle i|\hat{f}|a\rangle = 0$, so $\hat{f}$ maps the complement into itself as well. In a finite basis $\hat{f}$ therefore splits into uncoupled occupied and virtual blocks, which can be diagonalized separately, giving $\hat{f} |a\rangle = \epsilon_a |a\rangle$. Rotations within the virtual block do not change the reference determinant. This is where the $\epsilon_a$ in the MP2 denominators come from.
+
+\section{Orbital Energies and the Total Energy}
+
+Using \eqref{eq:fock-op}:
+\begin{align*}
+\epsilon_i &= \langle i | \hat{f} | i \rangle = \langle i | h | i \rangle + \sum_j [\phys{ij}{ij} - \phys{ij}{ji}] \\
+&= h_{ii} + \sum_j \asym{ij}{ij}
+\end{align*}
+Orbital energies of virtual orbitals are defined in the same way, $\epsilon_a = \langle a|\hat{f}|a\rangle = h_{aa} + \sum_j \asym{aj}{aj}$: a virtual orbital ``feels'' the field of all $N$ occupied electrons. In terms of the occupied orbital energies, the HF energy is
+\begin{align}\label{eq:ehf-eps}
+E_{\text{HF}} &= \sum_i \epsilon_i - \frac{1}{2} \sum_{ij} \asym{ij}{ij} = \frac{1}{2} \sum_i (h_{ii} + \epsilon_i)
+\end{align}
+The total energy is \emph{not} the sum of orbital energies: the sum of orbital energies counts the electron--electron repulsion twice. The expression $E = \tr(h D) + \frac{1}{2} \tr(V_{\text{eff}} D)$ of Chapter 4 is exactly the AO version of \eqref{eq:ehf-eps}.
+
+\section{Brillouin's Theorem}
+
+The matrix element between a singly excited determinant $|\Phi_i^a\rangle$ ($\chi_i \rightarrow \chi_a$) and the HF determinant follows from Slater--Condon case 2:
+\begin{align*}
+\langle \Phi_i^a | \hat{H} | \Phi_0 \rangle &= \langle a | h | i \rangle + \sum_j \asym{aj}{ij} \\
+&= \langle a | \hat{f} | i \rangle = f_{ai}
+\end{align*}
+At the HF solution the matrix elements of $\hat{f}$ between occupied and virtual orbitals vanish (obvious in the canonical case; in the non-canonical case \eqref{eq:hf-noncanonical} shows that $\hat{f}|i\rangle$ contains only occupied orbitals), so
+\begin{align*}
+\langle \Phi_i^a | \hat{H} | \Phi_0 \rangle &= 0 \quad (\text{Brillouin theorem})
+\end{align*}
+
+\section{The Closed-Shell RHF Equations}
+
+For a closed shell, each of the $\frac{N}{2}$ spatial orbitals $\psi_i$ holds two electrons. Split the sum over spin orbitals $j$ in \eqref{eq:fock-op} into spatial orbitals and spins. Let the Fock operator act on an $\alpha$ spin orbital $\chi(x_1) = \psi(r_1) \alpha(\omega_1)$, with the spin orbital $\chi_j$ running over $\psi_j \alpha$ and $\psi_j \beta$. In the integral of the Coulomb operator the spin part of $\chi_j^*(2) \chi_j(2)$ is $\langle \sigma_j|\sigma_j\rangle = 1$, so both spins contribute the same spatial integral:
+\begin{align*}
+\hat{J}_{j \alpha} \chi(1) + \hat{J}_{j \beta} \chi(1) &= 2 \left[ \int dr_2 \psi_j^*(r_2) r_{12}^{-1} \psi_j(r_2) \right] \chi(1)
+\end{align*}
+In the integral of the exchange operator we have $\chi_j^*(2) \chi(2)$, whose spin part is $\langle \sigma_j|\alpha\rangle$, so only the $\sigma_j = \alpha$ term survives:
+\begin{align*}
+\hat{K}_{j \alpha} \chi(1) + \hat{K}_{j \beta} \chi(1) &= \left[ \int dr_2 \psi_j^*(r_2) r_{12}^{-1} \psi(r_2) \right] \psi_j(r_1) \alpha(\omega_1) + 0
+\end{align*}
+The result is the same for a $\beta$ spin $\chi$ (then the $\sigma_j = \beta$ term survives). The brackets on the right-hand sides are the $\hat{J}_j$ and $\hat{K}_j$ containing only spatial integrals, so
+\begin{align}\label{eq:fock-rhf}
+\hat{f}(r_1) &= h(r_1) + \sum_{j=1}^{N/2} [2 \hat{J}_j(r_1) - \hat{K}_j(r_1)]
+\end{align}
+where $\hat{J}_j$ and $\hat{K}_j$ now contain only spatial integrals. The spatial orbitals satisfy $\hat{f} \psi_i = \epsilon_i \psi_i$.
+
+\begin{summary}
+\begin{itemize}
+\item Varying $E[\{\chi\}]$ under the orthonormality constraint $\Rightarrow$ $\hat{f} \chi_m = \sum_j \epsilon_{jm} \chi_j$, with $\epsilon$ Hermitian.
+\item The determinant and $\hat{f}$ are invariant under unitary transformations of the occupied orbitals, so $\epsilon$ can be diagonalized $\Rightarrow$ the canonical HF equations.
+\item $E_{\text{HF}} = \frac{1}{2} \sum_i (h_{ii} + \epsilon_i)$.
+\item Brillouin's theorem: at the HF solution $\langle \Phi_i^a | \hat{H} | \Phi_0 \rangle = f_{ai} = 0$.
+\end{itemize}
+\end{summary}

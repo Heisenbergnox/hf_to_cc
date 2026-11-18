@@ -1,0 +1,85 @@
+% From Hartree–Fock to Coupled Cluster: Theory Notes
+% Build with the XeTeX engine (fontspec), e.g.  tectonic main.tex
+\documentclass[a4paper,11pt,openany]{book}
+\usepackage{fontspec}
+
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{braket}
+\usepackage{booktabs,longtable,array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=green!40!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{enumitem}
+
+
+\setlength{\emergencystretch}{3em}
+
+\raggedbottom  % do not stretch pages to the bottom margin: a box that does not fit would leave large gaps
+\input{macros}
+
+% Running heads: book.cls upper-cases chapter and section titles, so long English titles overflow the page.
+% Keep their case (otherwise the logic of book.cls); a chapter title that still does not fit can be given
+% a short running-head title by defining \headtitle@<chapter number>.
+% Page numbers always at the bottom centre (chapter openings too); running heads at the top without numbers.
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\itshape\leftmark}
+\fancyhead[RO]{\small\itshape\rightmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\makeatletter
+\renewcommand{\chaptermark}[1]{\markboth{\ifnum\c@secnumdepth>\m@ne\if@mainmatter\@chapapp\ \thechapter.\ \ \fi\fi
+  \ifcsname headtitle@\thechapter\endcsname\csname headtitle@\thechapter\endcsname\else#1\fi}{}}
+\renewcommand{\sectionmark}[1]{\markright{\ifnum\c@secnumdepth>\z@\thesection.\ \ \fi#1}}
+\makeatother
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}{Remark}[chapter]
+\newtheorem{example}{Example}[chapter]
+
+% ---------------- code listings and boxes ----------------
+\lstdefinestyle{py}{
+  language=Python, basicstyle=\ttfamily\small, keywordstyle=\color{blue!60!black}\bfseries,
+  commentstyle=\color{green!40!black}, stringstyle=\color{red!50!black}, showstringspaces=false,
+  columns=fullflexible, breaklines=true, frame=single, rulecolor=\color{gray!50},
+  backgroundcolor=\color{gray!4}, numbers=left, numberstyle=\tiny\color{gray}, xleftmargin=2em,
+  escapeinside={(*@}{@*)}
+}
+\lstset{style=py}
+
+\newtcolorbox{codemap}[1][]{colback=blue!3,colframe=blue!40!black,title={Formula $\leftrightarrow$ code},fonttitle=\bfseries,#1}
+\newtcolorbox{pitfall}[1][]{colback=red!3,colframe=red!50!black,title={Pitfall},fonttitle=\bfseries,#1}
+\newtcolorbox{summary}[1][]{colback=green!3,colframe=green!40!black,title={Summary},fonttitle=\bfseries,#1}
+
+\title{\Huge From Hartree--Fock to Coupled Cluster:\\[0.5em]\Large Theory Notes}
+\author{}
+\date{}
+\hypersetup{pdftitle={From Hartree–Fock to Coupled Cluster: Theory Notes}}
+
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+\input{ch01_variational}
+\input{ch02_slater}
+\input{ch03_hf_equations}
+\input{ch04_roothaan}
+\input{ch05_scf_convergence}
+\input{ch06_uhf_rohf}
+\input{ch07_second_quantization}
+\input{ch08_integrals}
+\input{ch09_mp2}
+\input{ch10_ci_theory}
+\input{ch14_cc}
+
+\end{document}

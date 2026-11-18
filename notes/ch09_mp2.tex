@@ -1,0 +1,93 @@
+\chapter{Perturbation Theory and MP2}
+\label{ch:mp2}
+
+MP2 is the cheapest correlation method and also the starting guess of the CC iterations (Chapter 11). This chapter follows the order of MEST pp.~28--32: first Rayleigh--Schrödinger perturbation theory (RSPT) is recalled, then the Møller--Plesset partitioning gives MP2; the spin-orbital formula is then spin-integrated into the closed-shell formula (every spin case written out).
+
+\textbf{Parallel reading.} “Adv qc” pp.~48--55: from MBPT for a one-electron perturbation to the MP partitioning and MP2. Also “qc” pp.~84--86 (MP partitioning, $E_0 \neq E_{\text{HF}}$) and MEST pp.~28--32. Textbooks: Shavitt--Bartlett Ch.~2 (derivation of RS perturbation theory); Helgaker §14.1, §14.2 (MP theory), §14.4 (closed-shell MP; Eq.~(14.4.40) defines $L_{pqrs} = 2 g_{pqrs} - g_{psrq}$ and Eq.~(14.4.55) is the closed-shell MP2 energy); Szabo--Ostlund Ch.~6.
+
+\section{Rayleigh--Schrödinger Perturbation Theory}
+
+This chapter uses only a few results of non-degenerate RS perturbation theory. Let $\hat{H} = \hat{H}_0 + \lambda \hat{V}$ with $\hat{H}_0 |\Phi_n^{(0)}\rangle = E_n^{(0)} |\Phi_n^{(0)}\rangle$, let the target zeroth-order state $|\Phi_i^{(0)}\rangle$ be non-degenerate, and use intermediate normalization $\langle \Phi_i^{(0)} | \Psi_i \rangle = 1$. Then
+\begin{align*}
+E_i^{(1)} &= \langle \Phi_i^{(0)} | \hat{V} | \Phi_i^{(0)} \rangle, \\
+|\Psi_i^{(1)}\rangle &= \sum_{n \neq i} \frac{|\Phi_n^{(0)}\rangle \langle \Phi_n^{(0)}|\hat{V}|\Phi_i^{(0)}\rangle}{E_i^{(0)} - E_n^{(0)}}
+\end{align*}
+The second-order energy is $E_i^{(2)} = \langle \Phi_i^{(0)}|\hat{V}|\Psi_i^{(1)}\rangle$, i.e.
+\begin{align}\label{eq:e2-rspt}
+E_i^{(2)} &= \sum_{n \neq i} \frac{|\langle \Phi_n^{(0)} | \hat{V} | \Phi_i^{(0)} \rangle|^2}{E_i^{(0)} - E_n^{(0)}}
+\end{align}
+
+\section{The Møller--Plesset Partitioning}
+
+Take $\hat{H}_0$ as the sum of Fock operators (canonical HF orbitals):
+\begin{align*}
+\hat{H}_0 &= \sum_i \hat{f}(i), \quad \hat{V} = \hat{H} - \hat{H}_0 = \sum_{i<j} r_{ij}^{-1} - \sum_i v^{\text{HF}}(i)
+\end{align*}
+where $v^{\mathrm{HF}} = \sum_j (\hat{J}_j - \hat{K}_j)$. Every determinant built from HF orbitals is an eigenstate of $\hat{H}_0$ with eigenvalue equal to the sum of its occupied orbital energies. Hence
+\begin{align*}
+E_0^{(0)} &= \sum_i \epsilon_i, \\
+E_0^{(0)} + E_0^{(1)} &= \langle \Phi_0 | \hat{H}_0 + \hat{V} | \Phi_0 \rangle = \langle \Phi_0 | \hat{H} | \Phi_0 \rangle = E_{\text{HF}}
+\end{align*}
+The second-order energy \eqref{eq:e2-rspt} needs $\langle \Phi_n|\hat{V}|\Phi_0\rangle$: since the matrix elements of $\hat{H}_0$ between different determinants vanish (it is diagonal in determinants), $\langle \Phi_n|\hat{V}|\Phi_0\rangle = \langle \Phi_n|\hat{H}|\Phi_0\rangle$, and only double excitations contribute:
+\begin{align*}
+\langle \Phi_{ij}^{ab} | \hat{H} | \Phi_0 \rangle &= \asym{ab}{ij}, \\
+E_{ij}^{ab,(0)} - E_0^{(0)} &= \epsilon_a + \epsilon_b - \epsilon_i - \epsilon_j
+\end{align*}
+Summing over $i < j$, $a < b$ (each doubly excited determinant counted once):
+\begin{align}\label{eq:mp2-so}
+E^{(2)} &= \sum_{i<j} \sum_{a<b} \frac{|\asym{ij}{ab}|^2}{\epsilon_i + \epsilon_j - \epsilon_a - \epsilon_b} \\
+&= \frac{1}{4} \sum_{ijab} \frac{|\asym{ij}{ab}|^2}{\epsilon_i + \epsilon_j - \epsilon_a - \epsilon_b} \notag
+\end{align}
+
+\section{Closed-Shell MP2: Spin Integration}
+
+Replace the spin orbitals of \eqref{eq:mp2-so} by spatial orbitals $i, j, a, b$ plus spins. Let the spatial integrals be $\chem{ia}{jb}$ (chemists' notation). There are four cases according to the spins of $(I, J)$ ($I = i \sigma_i$ etc.). From Chapter 2, $\phys{IJ}{AB} = \chem{IA}{JB} = \chem{ia}{jb} \delta_{\sigma_I \sigma_A} \delta_{\sigma_J \sigma_B}$.
+
+\textbf{$(\alpha, \alpha)$:} $A, B$ must also be $\alpha$:
+\begin{align*}
+\asym{i\alpha j\alpha}{a\alpha b\alpha} &= \chem{ia}{jb} - \chem{ib}{ja}
+\end{align*}
+Contribution $\frac{1}{4} \sum_{ijab} \frac{[\chem{ia}{jb} - \chem{ib}{ja}]^2}{D_{ij}^{ab}}$, with $D_{ij}^{ab} = \epsilon_i + \epsilon_j - \epsilon_a - \epsilon_b$.
+
+\textbf{$(\beta, \beta)$:} the same as above.
+
+\textbf{$(\alpha, \beta)$:} $(A, B)$ can be $(a \alpha, b \beta)$ or $(a \beta, b \alpha)$:
+\begin{align*}
+\asym{i\alpha j\beta}{a\alpha b\beta} &= \chem{ia}{jb} - 0, \quad \asym{i\alpha j\beta}{a\beta b\alpha} = 0 - \chem{ib}{ja}
+\end{align*}
+After squaring and summing over $a, b$, the second becomes identical to the first upon swapping the dummy indices $a \leftrightarrow b$ ($D$ is symmetric). Contribution $\frac{1}{4} \cdot 2 \sum \frac{\chem{ia}{jb}^2}{D}$.
+
+\textbf{$(\beta, \alpha)$:} the same as $(\alpha, \beta)$.
+
+In total:
+\begin{align*}
+E^{(2)} &= \frac{1}{2} \sum_{ijab} \frac{[\chem{ia}{jb} - \chem{ib}{ja}]^2}{D} + \sum_{ijab} \frac{\chem{ia}{jb}^2}{D}
+\end{align*}
+Expand the first term and use $\sum \frac{\chem{ib}{ja}^2}{D} = \sum \frac{\chem{ia}{jb}^2}{D}$ (swap the dummy indices $a \leftrightarrow b$):
+\begin{align*}
+\frac{1}{2} \sum \frac{[\chem{ia}{jb}^2 - 2 \chem{ia}{jb}\chem{ib}{ja} + \chem{ib}{ja}^2]}{D} &= \sum \frac{[\chem{ia}{jb}^2 - \chem{ia}{jb}\chem{ib}{ja}]}{D}
+\end{align*}
+Adding the opposite-spin part:
+\begin{align}\label{eq:rmp2}
+E_{\text{RMP2}} &= \sum_{ijab} \frac{\chem{ia}{jb} [2 \chem{ia}{jb} - \chem{ib}{ja}]}{\epsilon_i + \epsilon_j - \epsilon_a - \epsilon_b}
+\end{align}
+It is often split into a same-spin part $E_{SS}$ and an opposite-spin part $E_{OS}$; the derivation above shows clearly where each part comes from.
+
+Implementation: \code{mp2} in \code{hf\_to\_cc/mp2.py}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+ovov = mo[:nocc, nocc:, :nocc, nocc:]
+D = eo[:, None, None, None] - ev[None, :, None, None] + eo[None, None, :, None] - ev[None, None, None, :]
+E_mp2 = np.sum(ovov * (2 * ovov - ovov.transpose(0, 3, 2, 1)) / D)
+\end{lstlisting}
+\code{ovov[i, a, j, b]} is $\chem{ia}{jb}$, and \code{ovov.transpose(0, 3, 2, 1)[i, a, j, b]} is \code{ovov[i, b, j, a]} $= \chem{ib}{ja}$; \code{D[i, a, j, b]} is $\epsilon_i + \epsilon_j - \epsilon_a - \epsilon_b$. The last line is \eqref{eq:rmp2}.
+\end{codemap}
+
+\begin{summary}
+\begin{itemize}
+\item RSPT: $E^{(1)} = \langle 0|V|0\rangle$, $E^{(2)} = \sum \frac{|\langle n|V|0\rangle|^2}{E_0 - E_n}$; intermediate normalization.
+\item MP partitioning: $E^{(0)} + E^{(1)} = E_{\text{HF}}$; $E^{(2)} = \frac{1}{4} \sum \frac{|\asym{ij}{ab}|^2}{D}$.
+\item Spin integration: $E_{\text{RMP2}} = \sum \frac{(ia|jb)[2(ia|jb) - (ib|ja)]}{D}$.
+\end{itemize}
+\end{summary}

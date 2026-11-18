@@ -1,0 +1,200 @@
+\chapter{Slater Determinants and the Slater--Condon Rules}
+\label{ch:slater}
+
+The HF energy expression, CI matrix elements, and the numerators and denominators of perturbation theory are all governed by one set of rules: the matrix elements of one- and two-body operators between two determinants. This chapter states them in first quantization (coordinate representation).
+
+\textbf{Parallel reading.} “qc” pp.~55--58 (energy of a two-electron single determinant, expanded term by term) and “Adv qc” pp.~26--32 (for general $N$, the Slater--Condon rules derived one by one with permutation sums and arranged in the form of Szabo Tables 2.5 and 2.6); MEST pp.~5--10, 15. Textbooks: Szabo--Ostlund §2.2 (Slater determinants), §2.3.3--2.3.4 (general rules for matrix elements and their derivation); ESQC collection Ch.~24 (Almlöf et al., Slater determinants); CTDL Vol.~III, Ch.~XV §B-4 and §C-4--C-5 (reduced density operators, consequences of exchange) and Complement A$_{\rm XVI}$ §2 (the exchange hole of fermions). Chapter 7 rederives the single- and double-excitation cases in second quantization (“Adv qc” pp.~46--47, MEST p.~27).
+
+\section{Antisymmetry and Slater Determinants}
+
+One-electron wave functions (spin orbitals) are written $\chi_{i}(x)$, where $x = (r, \omega)$ comprises the spatial and the spin coordinates, and are taken to be orthonormal:
+\begin{align*}
+\langle \chi_i|\chi_j\rangle &= \int dx \, \chi_i^*(x) \chi_j(x) = \delta_{ij}
+\end{align*}
+
+\subsection{Two Electrons}
+
+Subtract the exchanged term from the product $\chi_i(x_1) \chi_j(x_2)$:
+\begin{align*}
+\Phi(x_1, x_2) &= \frac{1}{\sqrt{2}} [\chi_i(x_1) \chi_j(x_2) - \chi_j(x_1) \chi_i(x_2)] \\
+&= \frac{1}{\sqrt{2}} \det\begin{pmatrix} \chi_i(x_1) & \chi_j(x_1) \\ \chi_i(x_2) & \chi_j(x_2) \end{pmatrix}
+\end{align*}
+(Read the last matrix as a 2×2 determinant: rows are electrons, columns are orbitals.) Antisymmetry: exchanging $x_1, x_2$ swaps two rows of the determinant, which changes its sign. If $i = j$ the determinant has two equal columns and vanishes---this is the Pauli exclusion principle. Below, $\chi_i(1)$ is shorthand for $\chi_i(x_1)$.
+
+\subsection{N Electrons}
+
+In general a Slater determinant is written
+\begin{align*}
+\Phi(x_1, \dots, x_N) &= \frac{1}{\sqrt{N!}} \det[\chi_{k_j}(x_i)] = |\chi_{k_1} \chi_{k_2} \dots \chi_{k_N}\rangle
+\end{align*}
+
+\section{Energy of a Two-Electron Determinant}
+
+Before the general $N$-electron results, the energy of the simplest determinant, two electrons in the spin orbitals $\chi_i$ and $\chi_j$, is worked out term by term (MEST pp.~5--6, “qc” pp.~55--57). For two electrons the Hamiltonian \eqref{eq:Hel} is a one-electron operator for each electron (kinetic energy plus nuclear attraction) plus the repulsion between the two:
+\begin{align*}
+\hat{H} &= \left[ -\frac{1}{2} \nabla_1^2 - \sum_A \frac{Z_A}{|r_1 - R_A|} \right] + \left[ -\frac{1}{2} \nabla_2^2 - \sum_A \frac{Z_A}{|r_2 - R_A|} \right] + \frac{1}{|r_1 - r_2|} \\
+&= h(1) + h(2) + r_{12}^{-1}
+\end{align*}
+$h(1)$ acts only on $x_1$, and $h(2)$ only on $x_2$. The energy of $\Phi(x_1, x_2) = \frac{1}{\sqrt{2}} [\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)]$ splits into three parts:
+\begin{align*}
+E &= \langle \Phi|\hat{H}|\Phi\rangle = \langle \Phi|h(1)|\Phi\rangle + \langle \Phi|h(2)|\Phi\rangle + \langle \Phi|r_{12}^{-1}|\Phi\rangle
+\end{align*}
+
+\subsection{One-Electron Part}
+
+\begin{align*}
+\langle \Phi|h(1)|\Phi\rangle &= \int dx_1 dx_2 \left[ \frac{1}{\sqrt{2}} (\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)) \right]^* h(1) \left[ \frac{1}{\sqrt{2}} (\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)) \right] \\
+&= \frac{1}{2} \int dx_1 dx_2\, [\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)]^* h(1) [\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)] \\
+&= \frac{1}{2} \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) h(1) \chi_i(1) \chi_j(2) \eqnote{multiply out} \\
+&\quad - \frac{1}{2} \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) h(1) \chi_j(1) \chi_i(2) \\
+&\quad - \frac{1}{2} \int dx_1 dx_2\, \chi_j^*(1) \chi_i^*(2) h(1) \chi_i(1) \chi_j(2) \\
+&\quad + \frac{1}{2} \int dx_1 dx_2\, \chi_j^*(1) \chi_i^*(2) h(1) \chi_j(1) \chi_i(2) \\
+&= \frac{1}{2} \int dx_2\, \chi_j^*(2) \chi_j(2) \int dx_1\, \chi_i^*(1) h(1) \chi_i(1) \eqnote{$h(1)$ acts on $x_1$ only} \\
+&\quad - \frac{1}{2} \int dx_2\, \chi_j^*(2) \chi_i(2) \int dx_1\, \chi_i^*(1) h(1) \chi_j(1) \\
+&\quad - \frac{1}{2} \int dx_2\, \chi_i^*(2) \chi_j(2) \int dx_1\, \chi_j^*(1) h(1) \chi_i(1) \\
+&\quad + \frac{1}{2} \int dx_2\, \chi_i^*(2) \chi_i(2) \int dx_1\, \chi_j^*(1) h(1) \chi_j(1) \\
+&= \frac{1}{2} [\langle i|h|i\rangle + \langle j|h|j\rangle] \eqnote{orthonormality: the $x_2$ integrals are $1, 0, 0, 1$}
+\end{align*}
+where $\langle p|h|q\rangle = \int dx_1\, \chi_p^*(1) h(1) \chi_q(1)$. The same steps for $h(2)$, whose $x_1$ integrals now give the overlaps, yield
+\begin{align*}
+\langle \Phi|h(2)|\Phi\rangle &= \frac{1}{2} [\langle j|h|j\rangle + \langle i|h|i\rangle]
+\end{align*}
+so that
+\begin{align*}
+\langle \Phi|h(1) + h(2)|\Phi\rangle &= \langle i|h|i\rangle + \langle j|h|j\rangle
+\end{align*}
+
+\subsection{Two-Electron Part}
+
+\begin{align*}
+\langle \Phi|r_{12}^{-1}|\Phi\rangle &= \int dx_1 dx_2 \left[ \frac{1}{\sqrt{2}} (\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)) \right]^* r_{12}^{-1} \left[ \frac{1}{\sqrt{2}} (\chi_i(1) \chi_j(2) - \chi_j(1) \chi_i(2)) \right] \\
+&= \frac{1}{2} \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_i(1) \chi_j(2) \\
+&\quad - \frac{1}{2} \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_j(1) \chi_i(2) \\
+&\quad - \frac{1}{2} \int dx_1 dx_2\, \chi_j^*(1) \chi_i^*(2) r_{12}^{-1} \chi_i(1) \chi_j(2) \\
+&\quad + \frac{1}{2} \int dx_1 dx_2\, \chi_j^*(1) \chi_i^*(2) r_{12}^{-1} \chi_j(1) \chi_i(2) \\
+&= \frac{1}{2} \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_i(1) \chi_j(2) \\
+&\quad - \frac{1}{2} \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_j(1) \chi_i(2) \\
+&\quad - \frac{1}{2} \int dx_1 dx_2\, \chi_j^*(2) \chi_i^*(1) r_{12}^{-1} \chi_i(2) \chi_j(1) \eqnote{$x_1 \leftrightarrow x_2$, $r_{21} = r_{12}$; $=$ 2nd term} \\
+&\quad + \frac{1}{2} \int dx_1 dx_2\, \chi_j^*(2) \chi_i^*(1) r_{12}^{-1} \chi_j(2) \chi_i(1) \eqnote{$x_1 \leftrightarrow x_2$; $=$ 1st term} \\
+&= \frac{1}{2} \left[ 2 \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_i(1) \chi_j(2) - 2 \int dx_1 dx_2\, \chi_i^*(1) \chi_j^*(2) r_{12}^{-1} \chi_j(1) \chi_i(2) \right] \\
+&= \int dx_1 dx_2\, \chi_i^*(1) \chi_i(1) r_{12}^{-1} \chi_j^*(2) \chi_j(2) - \int dx_1 dx_2\, \chi_i^*(1) \chi_j(1) r_{12}^{-1} \chi_j^*(2) \chi_i(2) \\
+&= \phys{ij}{ij} - \phys{ij}{ji} = \asym{ij}{ij}
+\end{align*}
+where
+\begin{align*}
+\phys{pq}{rs} &= \int dx_1 dx_2\, \chi_p^*(1) \chi_q^*(2) r_{12}^{-1} \chi_r(1) \chi_s(2) \\
+\asym{pq}{rs} &= \phys{pq}{rs} - \phys{pq}{sr}
+\end{align*}
+The Coulomb term $\phys{ij}{ij} = \int dx_1 dx_2\, |\chi_i(1)|^2 r_{12}^{-1} |\chi_j(2)|^2$ is the classical repulsion between the charge clouds $|\chi_i|^2$ and $|\chi_j|^2$; it is also the only two-electron term that the plain product $\chi_i(1) \chi_j(2)$ (the Hartree product) gives. The exchange term $\phys{ij}{ji}$ has no classical counterpart: it comes from the antisymmetry of the determinant.
+
+Altogether, the energy of the two-electron determinant is
+\begin{align*}
+E &= \langle i|h|i\rangle + \langle j|h|j\rangle + \asym{ij}{ij}
+\end{align*}
+With $N$ electrons the same expansion gives one such one-electron term for each occupied spin orbital and one Coulomb-minus-exchange term for each pair of occupied spin orbitals; the next two sections state these results.
+
+
+\section{Matrix Elements of One-Electron Operators}
+
+Let $O_1 = \sum_{i=1}^N h(i)$, where $h$ acts only on the coordinates of electron $i$ (e.g.\ kinetic energy plus nuclear attraction, the $h_{\text{core}}$ of Chapter 4). Its expectation value in the determinant $\Phi$ is the sum of the expectation values of $h$ in the occupied spin orbitals:
+\begin{align}\label{eq:sc-1e-diag}
+\langle \Phi|O_1|\Phi\rangle &= \sum_{m \in \text{occ}} \langle m|h|m\rangle
+\end{align}
+
+\section{Matrix Elements of Two-Electron Operators}
+
+Let $O_2 = \sum_{i<j} v(i, j)$ with $v(i, j) = \frac{1}{r_{ij}}$. Each pair of occupied spin orbitals $m, n$ contributes a Coulomb integral minus an exchange integral:
+\begin{align*}
+\phys{mn}{mn} &= \int dx_1 dx_2 \chi_m^*(1) \chi_n^*(2) r_{12}^{-1} \chi_m(1) \chi_n(2)
+\end{align*}
+\begin{align*}
+\phys{mn}{nm} &= \int dx_1 dx_2 \chi_m^*(1) \chi_n^*(2) r_{12}^{-1} \chi_n(1) \chi_m(2)
+\end{align*}
+Summed over all pairs,
+\begin{align}\label{eq:sc-2e-diag}
+\langle \Phi|O_2|\Phi\rangle &= \sum_{m<n} [\phys{mn}{mn} - \phys{mn}{nm}] = \sum_{m<n} \asym{mn}{mn} \\
+&= \frac{1}{2} \sum_{mn} \asym{mn}{mn} \notag
+\end{align}
+The last step: $\asym{mn}{mn}$ is symmetric in $m, n$ ($\asym{nm}{nm} = \asym{mn}{mn}$, by exchanging the two integration variables), and for $m = n$, $\asym{mm}{mm} = \phys{mm}{mm} - \phys{mm}{mm} = 0$, so $\sum_{m<n}$ equals $\frac{1}{2} \sum_{mn}$. This is very important: it frees us from worrying about ``self-interaction''---the $m = n$ self-interaction in the Coulomb term is cancelled exactly by the exchange term.
+
+Combining the one- and two-body parts, the energy of a single determinant is
+\begin{align}
+E[\Phi] &= \sum_m \langle m|h|m\rangle + \frac{1}{2} \sum_{mn} \asym{mn}{mn} \notag \\
+&= \sum_m h_{mm} + \frac{1}{2} \sum_{mn} [\phys{mn}{mn} - \phys{mn}{nm}] \label{eq:E-det}
+\end{align}
+This is the HF energy expression; Chapter 3 makes it variational.
+
+\section{The Slater--Condon Rules}
+
+CI needs matrix elements between different determinants. Let $|K\rangle$ and $|L\rangle$ be arranged in \emph{maximum coincidence} (equal orbitals in equal positions; the reordering brings a sign, discussed below).
+
+\textbf{Case 1: $|K\rangle = |L\rangle$.} Already obtained above:
+\begin{align*}
+\langle K|O_1|K\rangle &= \sum_{m \in K} \langle m|h|m\rangle, \\
+\langle K|O_2|K\rangle &= \frac{1}{2} \sum_{m,n \in K} \asym{mn}{mn}
+\end{align*}
+
+\textbf{Case 2: one orbital different.} $|K\rangle = |\dots m \dots\rangle$, $|L\rangle = |\dots p \dots\rangle$ ($m$ replaced by $p$, everything else equal):
+\begin{align*}
+\langle K|\hat{O}_1|L\rangle &= \langle m|h|p\rangle, \quad \langle K|\hat{O}_2|L\rangle = \sum_{n \in K} \asym{mn}{pn}
+\end{align*}
+
+\textbf{Case 3: two orbitals different.} $m, n \rightarrow p, q$:
+\begin{align*}
+\langle K|\hat{O}_1|L\rangle &= 0, \quad \langle K|\hat{O}_2|L\rangle = \asym{mn}{pq}
+\end{align*}
+A one-body operator can ``repair'' only one differing orbital, and the other differing orbital gives a zero overlap; a two-body operator repairs exactly two.
+
+\textbf{Case 4: three or more orbitals different}: all matrix elements vanish.
+
+\begin{pitfall}
+\textbf{Signs.} The formulas above assume that the two determinants are already in maximum coincidence. If the original orbital order of $|L\rangle$ is different, its columns must first be swapped into place, with a factor $-1$ for every swap.
+\end{pitfall}
+
+\section{Spin Integration: From Spin Orbitals to Spatial Orbitals}
+
+Restricted spin orbitals are spatial orbitals times spin functions:
+\begin{align*}
+\chi_{2i-1}(x) &= \psi_i(r) \alpha(\omega), \quad \chi_{2i}(x) = \psi_i(r) \beta(\omega) \\
+\langle \alpha|\alpha\rangle &= \langle \beta|\beta\rangle = 1, \langle \alpha|\beta\rangle = 0
+\end{align*}
+For the integral $\int dx = \int dr \sum_{\omega}$ the spin part can be integrated out first. For a one-electron integral with $\chi_p = \psi_p \sigma_p$, $\chi_q = \psi_q \sigma_q$:
+\begin{align*}
+\langle \chi_p|h|\chi_q\rangle &= (\psi_p|h|\psi_q) \langle \sigma_p|\sigma_q\rangle = h_{pq} \delta_{\sigma_p \sigma_q}
+\end{align*}
+A two-electron integral (chemists' notation, the two orbitals of the same electron together):
+\begin{align*}
+[\chi_p \chi_q|\chi_r \chi_s] &= (pq|rs) \delta_{\sigma_p \sigma_q} \delta_{\sigma_r \sigma_s}
+\end{align*}
+That is: the two spin orbitals of the same electron must have the same spin. In physicists' notation $\phys{pq}{rs} = [pr|qs]$:
+\begin{align*}
+\langle \chi_p \chi_q|\chi_r \chi_s\rangle &= (pr|qs) \delta_{\sigma_p \sigma_r} \delta_{\sigma_q \sigma_s}
+\end{align*}
+
+\subsection{Energy of a Closed-Shell Determinant}
+
+Closed shell: $\frac{N}{2}$ spatial orbitals $\psi_i$, each occupied by one $\alpha$ and one $\beta$ electron. Split the spin-orbital sums of \eqref{eq:E-det} into sums over spatial orbitals and spins. One-body part:
+\begin{align*}
+\sum_m \langle m|h|m\rangle &= \sum_{i}^{N/2} [h_{ii} + h_{ii}] = 2 \sum_i h_{ii}
+\end{align*}
+Two-body Coulomb part: $\phys{mn}{mn} = (mm|nn) \delta_{\sigma_m \sigma_m} \delta_{\sigma_n \sigma_n} = (ii|jj)$ is non-zero for all 4 spin combinations,
+\begin{align*}
+\frac{1}{2} \sum_{mn} \phys{mn}{mn} &= \frac{1}{2} \cdot 4 \sum_{ij} (ii|jj) = 2 \sum_{ij} (ii|jj)
+\end{align*}
+Exchange part: $\phys{mn}{nm} = (mn|nm) \delta_{\sigma_m \sigma_n} \delta_{\sigma_n \sigma_m}$ is non-zero only for the two combinations $\alpha \alpha$ and $\beta \beta$,
+\begin{align*}
+\frac{1}{2} \sum_{mn} \phys{mn}{nm} &= \frac{1}{2} \cdot 2 \sum_{ij} (ij|ji) = \sum_{ij} (ij|ji)
+\end{align*}
+So the closed-shell energy is
+\begin{align}\label{eq:E-rhf-mo}
+E_{\text{RHF}} &= 2 \sum_i h_{ii} + \sum_{ij} [2 (ii|jj) - (ij|ji)] = 2 \sum_i h_{ii} + \sum_{ij} (2 J_{ij} - K_{ij})
+\end{align}
+$J_{ij} = (ii|jj)$ is the Coulomb integral and $K_{ij} = (ij|ji)$ the exchange integral. This agrees exactly with MEST p.~15; Chapter 4 rewrites it in terms of the AO density matrix.
+
+\begin{summary}
+\begin{itemize}
+\item Single-determinant energy $E = \sum_m h_{mm} + \frac{1}{2} \sum_{mn} \asym{mn}{mn}$; the $m = n$ self-interaction cancels automatically.
+\item Slater--Condon: determinants differing by 0, 1 or 2 orbitals give three formulas, more differences give zero; mind the reordering sign.
+\item Spin integration: the two orbitals of the same electron must have the same spin; closed shell $E = 2 \sum h_{ii} + \sum (2J - K)$.
+\end{itemize}
+\end{summary}

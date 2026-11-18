@@ -1,0 +1,251 @@
+\chapter{Second Quantization and Wick's Theorem}
+\label{ch:sq}
+
+The coupled-cluster derivations of Chapter 11 are all done in second quantization: it ``packs'' the antisymmetry of determinants into the anticommutation relations of operators, and the Slater--Condon rules become simple algebra. This chapter follows the order of MEST pp.~21--27: creation and annihilation operators, anticommutation relations, operators in second quantization, normal order and Wick's theorem, the Fermi vacuum and the particle--hole formalism, and the normal-ordered Hamiltonian. Finally it explains how $\cre{p}$ acts on a determinant stored as a bit string.
+
+\textbf{Parallel reading.} “Adv qc” pp.~15--20 (creation and annihilation operators, anticommutation relations, one- and two-body operators) and pp.~40--47 (normal order, contractions, Wick's theorem, the Fermi vacuum, the normal-ordered Hamiltonian, the generalized Wick theorem); MEST pp.~21--26, 40--41. The textbook closest in order to this chapter is Shavitt--Bartlett Ch.~3 (§3.2 creation and annihilation operators, §3.3 normal products and Wick's theorem, §3.4 the particle--hole formalism, §3.6 operators in normal-product form, §3.7 the generalized Wick theorem, §3.8 evaluation of matrix elements); Helgaker Ch.~1--2 and ESQC collection Ch.~6--12 (Olsen) do not use Wick's theorem but commutator algebra and singlet excitation operators, which makes a good comparison with this chapter; Szabo--Ostlund §2.4 is a short introduction. Exercises: ESQC 76.1 (six identities for commutators and anticommutators), 76.8 (commutation relations between $E_{mn}$ and creation/annihilation operators); the introduction of ESQC 2024 problem 80 restates the Fermi-vacuum formalism in terms of quasiparticle operators.
+
+\section{Creation and Annihilation Operators}
+
+\subsection{Definitions}
+
+Take an orthonormal set of spin orbitals $\no{\chi_p}$. Define the creation operator $\cre{p}$:
+\begin{align*}
+\cre{p} |\chi_k \chi_l \dots \chi_n\rangle = |\chi_p \chi_k \chi_l \dots \chi_n\rangle
+\end{align*}
+i.e.\ it puts $\chi_p$ at the \emph{front} of the determinant. If $\chi_p$ is already occupied, the result is a determinant with two equal columns, which is zero. Every determinant can be generated from the vacuum $|vac\rangle$ (no electrons, normalized $\langle vac|vac\rangle = 1$):
+\begin{align*}
+|\chi_i \chi_j \dots \chi_k\rangle = \cre{i} \cre{j} \dots \cre{k} |\text{vac}\rangle
+\end{align*}
+The annihilation operator is $\ann{p} = (\cre{p})^\dagger$; acting on a determinant with $\chi_p$ at the front it gives
+\begin{align*}
+a_p |\chi_p \chi_i \dots\rangle &= |\chi_i \dots\rangle
+\end{align*}
+i.e.\ $\ann{p}$ removes $\chi_p$ \emph{standing at the front}. If $\chi_p$ is not at the front, first swap columns to bring it there (a minus sign per swap), then remove it. If $\chi_p$ is not occupied, $\ann{p}$ gives zero. The vacuum has nothing to annihilate: $\ann{p} |vac\rangle = 0$, and correspondingly $\langle vac| \cre{p} = 0$.
+
+\textbf{Fock space.} $\cre{p}$ raises the number of electrons by one and $\ann{p}$ lowers it by one, so the space they act on contains states of every electron number: the vacuum, the one-electron states $\cre{p} |\text{vac}\rangle$, the two-electron states $\cre{p} \cre{q} |\text{vac}\rangle$, and so on. These fixed-number spaces of antisymmetric states taken together form the Fock space. Every term of the electronic Hamiltonian below contains as many creation as annihilation operators and conserves the number of electrons, so CI is solved within the $N$-electron part alone. With $n$ spin orbitals, each occupied or empty, the Fock space has dimension $2^n$.
+
+\subsection{Anticommutation Relations}
+
+Comparing $\cre{p} \cre{q}$ with $\cre{q} \cre{p}$, and $\ann{p} \cre{q}$ with $\cre{q} \ann{p}$, on every determinant gives the anticommutation relations ($\{A, B\} = A B + B A$)
+\begin{align}\label{eq:anticomm}
+\{\cre{p}, \cre{q}\} = 0, \quad \{a_p, a_q\} = 0, \quad \{a_p, \cre{q}\} = \delta_{pq}
+\end{align}
+
+\section{Operators in Second Quantization}
+
+The one-body operator $O_1 = \sum_i h(i)$ and the two-body operator $O_2 = \sum_{i<j} v(i,j)$ are written in second quantization as
+\begin{align*}
+O_1 = \sum_{pq} \langle p|h|q\rangle \cre{p} a_q
+\end{align*}
+\begin{align}\label{eq:op2}
+&O_2 = \frac{1}{2} \sum_{pqrs} \phys{pq}{rs} \cre{p} \cre{q} a_s a_r \\
+&= \frac{1}{4} \sum_{pqrs} \asym{pq}{rs} \cre{p} \cre{q} a_s a_r \notag
+\end{align}
+Note that the order of the annihilation operators in $O_2$ is $\ann{s} \ann{r}$ (opposite to the order of $r, s$ in the integral $\phys{pq}{rs}$).
+
+\textbf{Check $\frac{1}{2} \phys{pq}{rs} \rightarrow \frac{1}{4} \asym{pq}{rs}$:} in $\frac{1}{2} \sum \phys{pq}{rs} \cre{p} \cre{q} \ann{s} \ann{r}$ swap the dummy indices $r \leftrightarrow s$ and use $\ann{r} \ann{s} = - \ann{s} \ann{r}$:
+\begin{align*}
+\frac{1}{2} \sum \phys{pq}{rs} \cre{p} \cre{q} a_s a_r = - \frac{1}{2} \sum \phys{pq}{sr} \cre{p} \cre{q} a_s a_r
+\end{align*}
+Adding the two forms and dividing by 2 gives $\frac{1}{4} \sum \asym{pq}{rs} \cre{p} \cre{q} \ann{s} \ann{r}$.
+
+\section{Normal Order, Contractions and Wick's Theorem}
+
+\subsection{Normal Order with Respect to the Vacuum}
+
+The normal-ordered product $\{ABC\dots\}$ of a string of operators: move all annihilation operators to the right of all creation operators, with a factor $-1$ for every swap (\emph{without} using the $\delta$ terms of the anticommutation relations---it is only a reordering). For example
+\begin{align*}
+\no{\cre{p} a_q} &= \cre{p} a_q, \quad \no{a_q \cre{p}} = - \cre{p} a_q, \quad \no{a_p a_q} = a_p a_q
+\end{align*}
+The vacuum expectation value of a normal-ordered product is zero (the annihilation operators on the right act on $|vac\rangle$, or the creation operators on the left act on $\langle \text{vac}|$).
+
+\subsection{Contractions}
+
+The contraction of two operators is defined as the difference between their product and its normal-ordered product:
+\begin{align*}
+\contraction{A B} = A B - \no{A B}
+\end{align*}
+With respect to the vacuum, the only non-zero contraction is
+\begin{align*}
+\contraction{a_p \cre{q}} = a_p \cre{q} - \no{a_p \cre{q}} = a_p \cre{q} + \cre{q} a_p = \delta_{pq}
+\end{align*}
+The other three kinds ($\ann{}^\dagger \ann{}^\dagger$, $\ann{} \ann{}$, $\ann{}^\dagger \ann{}$) vanish because they are already normal ordered.
+
+\subsection{Wick's Theorem}
+
+\begin{theorem}[Wick]
+A product of creation and annihilation operators equals its normal-ordered product, plus the normal-ordered products with all single contractions, plus all double contractions, \ldots, up to all fully contracted terms:
+\begin{align*}
+A B C \dots X Y Z &= \no{A B C \dots X Y Z} + \sum_{\text{single}} \no{\contraction \dots} \\
+&\quad + \sum_{\text{double}} \no{\dots} + \dots + \sum_{\text{full}} \no{\text{fully contracted}}
+\end{align*}
+The sign of each term is the parity of a reordering: bring each contracted pair of operators next to each other in turn (the uncontracted operators keep their relative order); an odd number of swaps gives a minus sign.
+\end{theorem}
+
+\textbf{Counting crossings for full contractions.} When all operators are contracted, this parity is $(-1)^h$, where $h$ is the number of crossings of the contraction lines; this is the form used for matrix elements from here on.
+
+The value of Wick's theorem: every matrix element equals the sum of the \emph{fully contracted} terms, and full contractions only require listing the pairings and counting the crossings.
+
+\section{The Fermi Vacuum and the Particle--Hole Formalism}
+
+The vacuum $|vac\rangle$ is too far from the physics: we care about $N$-electron states, all of which are ``close to'' the HF determinant $|\Phi_0\rangle$. Take $|\Phi_0\rangle$ as the new ``vacuum''---the Fermi vacuum. Following the convention of MEST p.~25, the occupied orbitals $i, j, k, l$ are called hole orbitals and the virtual orbitals $a, b, c, d$ particle orbitals. Define quasiparticle operators:
+\begin{align*}
+&\text{hole creation operator: } a_i \ \text{(removes an electron from } \Phi_0 = \text{creates a hole)}, \\
+&\text{hole annihilation operator: } \cre{i}
+\end{align*}
+\begin{align*}
+&\text{particle creation operator: } \cre{a}, \quad \text{particle annihilation operator: } a_a
+\end{align*}
+Because $\cre{i} |\Phi_0\rangle = 0$ ($i$ is occupied) and $\ann{a} |\Phi_0\rangle = 0$ ($a$ is empty), the quasiparticle annihilation operators give zero on the Fermi vacuum, just as in the vacuum case.
+
+\textbf{Normal order $\{ \dots \}$ with respect to $|\Phi_0\rangle$}: move all quasiparticle annihilation operators ($\cre{i}$, $\ann{a}$) to the right. Only two \textbf{contractions} are non-zero:
+\begin{align*}
+\contraction{\cre{i} a_j} = \delta_{ij}, \quad \contraction{a_a \cre{b}} = \delta_{ab}
+\end{align*}
+Derivation: for $\cre{i} \ann{j} - \{\cre{i} \ann{j}\}$, $\cre{i}$ is a hole annihilation operator and must move to the right, $\{\cre{i} \ann{j}\} = -\ann{j} \cre{i}$, so the contraction is $\cre{i} \ann{j} + \ann{j} \cre{i} = \delta_{ij}$. $\ann{a} \cre{b}$ is the same as in the vacuum case. All other combinations ($\ann{i} \cre{j}$, $\cre{a} \ann{b}$, mixed $i a$) have zero contraction. Mnemonic: \emph{hole lines contract in the order $\ann{}^\dagger \ann{}$, particle lines in the order $a\, a^\dagger$.}
+
+With these rules the \emph{expectation value} of a normal-ordered product with respect to $|\Phi_0\rangle$ is zero, and Wick's theorem holds unchanged. Note that a normal-ordered product acting on $|\Phi_0\rangle$ need not give zero: for example $\no{\cre{a} a_i}|\Phi_0\rangle = |\Phi_i^a\rangle$; only products whose rightmost operator is a quasiparticle annihilator ($\cre{i}$ or $\ann{a}$) annihilate $|\Phi_0\rangle$.
+
+\section{The Normal-Ordered Hamiltonian}
+
+Both parts of $H$ are expanded with Wick's theorem, with normal order and contractions taken with respect to the Fermi vacuum $|\Phi_0\rangle$ (MEST p.~26; “Adv qc” pp.~43--45):
+\begin{align*}
+H &= O_1 + O_2 = \sum_{pq} h_{pq} \cre{p} \ann{q} + \frac{1}{2} \sum_{pqrs} \phys{pq}{rs} \cre{p} \cre{q} \ann{s} \ann{r}
+\end{align*}
+
+\textbf{One-electron part.} Wick's theorem gives one term without and one with a contraction:
+\begin{align*}
+O_1 &= \sum_{pq} h_{pq} \no{\cre{p} \ann{q}} + \sum_{pq} h_{pq} \no{\contraction{\cre{p} \ann{q}}} \\
+&= \sum_{pq} h_{pq} \no{\cre{p} \ann{q}} + \sum_{ij} h_{ij} \contraction{\cre{i} \ann{j}} \eqnote{hole line: only occupied $p, q$} \\
+&= \sum_{pq} h_{pq} \no{\cre{p} \ann{q}} + \sum_{i} h_{ii} \eqnote{$\contraction{\cre{i} \ann{j}} = \delta_{ij}$}
+\end{align*}
+
+\textbf{Two-electron part.} In $\cre{p} \cre{q} \ann{s} \ann{r}$ two $a^\dagger$ or two $a$ never contract, and $\cre{p}$ standing to the left of $\ann{s}$ gives $\contraction{\cre{p} \ann{s}} = \delta^{\text{occ}}_{ps}$, which is $1$ if $p = s$ is occupied and $0$ otherwise. This leaves four single and two double contractions (two crossing lines are drawn one above and one below the string):
+% crossing pair p--s, q--r: p--s above (\contraction over a phantom), q--r below (\underbracket)
+\begin{align*}
+\cre{p} \cre{q} \ann{s} \ann{r} &= \no{\cre{p} \cre{q} \ann{s} \ann{r}} + \no{{\contraction{\cre{p} \cre{q} \ann{s}}} \ann{r}} + \no{\contraction{\cre{p} \cre{q} \ann{s} \ann{r}}} \\
+&\quad + \no{\cre{p} {\contraction{\cre{q} \ann{s}}} \ann{r}} + \no{\cre{p} {\contraction{\cre{q} \ann{s} \ann{r}}}} \\
+&\quad + \no{\mathrlap{\contraction{\phantom{\cre{p} \cre{q} \ann{s}}}} \cre{p} {\underbracket{\cre{q} \ann{s} \ann{r}}}} + \no{\contraction{\cre{p} {\contraction{\cre{q} \ann{s}}} \ann{r}}}
+\end{align*}
+The sign of each term is the parity of the swaps that bring the contracted operators together:
+\begin{align*}
+\cre{p} \cre{q} \ann{s} \ann{r} &= \no{\cre{p} \cre{q} \ann{s} \ann{r}} - \delta^{\text{occ}}_{ps} \no{\cre{q} \ann{r}} + \delta^{\text{occ}}_{pr} \no{\cre{q} \ann{s}} \eqnote{1 and 2 swaps} \\
+&\quad + \delta^{\text{occ}}_{qs} \no{\cre{p} \ann{r}} - \delta^{\text{occ}}_{qr} \no{\cre{p} \ann{s}} \eqnote{0 and 1 swaps} \\
+&\quad - \delta^{\text{occ}}_{ps} \delta^{\text{occ}}_{qr} + \delta^{\text{occ}}_{pr} \delta^{\text{occ}}_{qs} \eqnote{crossing and nested}
+\end{align*}
+Multiply by $\frac{1}{2} \phys{pq}{rs}$ and sum over $p, q, r, s$; each $\delta^{\text{occ}}$ leaves one occupied index ($i$, and $j$ for the second one):
+\begin{align*}
+O_2 &= \frac{1}{2} \sum_{pqrs} \phys{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} - \frac{1}{2} {\underbrace{\sum_{iqr} \phys{iq}{ri} \no{\cre{q} \ann{r}}}_{(1)}} \\
+&\quad + \frac{1}{2} {\underbrace{\sum_{iqs} \phys{iq}{is} \no{\cre{q} \ann{s}}}_{(3)}} + \frac{1}{2} {\underbrace{\sum_{pir} \phys{pi}{ri} \no{\cre{p} \ann{r}}}_{(4)}} \\
+&\quad - \frac{1}{2} {\underbrace{\sum_{pis} \phys{pi}{is} \no{\cre{p} \ann{s}}}_{(2)}} - \frac{1}{2} \sum_{ij} \phys{ij}{ji} + \frac{1}{2} \sum_{ij} \phys{ij}{ij}
+\end{align*}
+The four single-contraction sums are equal in pairs (first rename the summation indices, then exchange the two integration variables):
+\begin{align*}
+(2) &= \sum_{iqr} \phys{qi}{ir} \no{\cre{q} \ann{r}} = \sum_{iqr} \phys{iq}{ri} \no{\cre{q} \ann{r}} = (1) \eqnote{$p \to q$, $s \to r$} \\
+(4) &= \sum_{iqs} \phys{qi}{si} \no{\cre{q} \ann{s}} = \sum_{iqs} \phys{iq}{is} \no{\cre{q} \ann{s}} = (3) \eqnote{$p \to q$, $r \to s$}
+\end{align*}
+Hence, with $\asym{ij}{ij} = \phys{ij}{ij} - \phys{ij}{ji}$ and, in the second step, the summation indices of the two single-contraction sums renamed to $p, q$,
+\begin{align*}
+O_2 &= \frac{1}{2} \Big[ \sum_{pqrs} \phys{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} - 2 \sum_{iqr} \phys{qi}{ir} \no{\cre{q} \ann{r}} + 2 \sum_{iqs} \phys{qi}{si} \no{\cre{q} \ann{s}} + \sum_{ij} \asym{ij}{ij} \Big] \\
+&= \frac{1}{2} \Big[ \sum_{pqrs} \phys{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} + 2 \sum_{pqi} \phys{pi}{qi} \no{\cre{p} \ann{q}} - 2 \sum_{pqi} \phys{pi}{iq} \no{\cre{p} \ann{q}} + \sum_{ij} \asym{ij}{ij} \Big] \\
+&= \frac{1}{2} \sum_{pqrs} \phys{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} + \sum_{pqi} \asym{pi}{qi} \no{\cre{p} \ann{q}} + \frac{1}{2} \sum_{ij} \asym{ij}{ij}
+\end{align*}
+
+\textbf{Collecting terms.} Adding $O_1$:
+\begin{align*}
+H &= \sum_{pq} \Big[ h_{pq} + \sum_i \asym{pi}{qi} \Big] \no{\cre{p} \ann{q}} + \frac{1}{2} \sum_{pqrs} \phys{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} \\
+&\quad + \sum_i h_{ii} + \frac{1}{2} \sum_{ij} \asym{ij}{ij}
+\end{align*}
+The bracket is the Fock matrix, $f_{pq} = h_{pq} + \sum_i \asym{pi}{qi} = \langle p|\hat{f}|q\rangle$ with $\hat{f}$ of \eqref{eq:fock-op}. In the two-electron term, the swap $r \leftrightarrow s$ of \eqref{eq:op2} turns $\frac{1}{2} \phys{pq}{rs}$ into $\frac{1}{4} \asym{pq}{rs}$ (inside $\no{\dots}$ a swap of two operators also gives $-1$). The constant is $\langle \Phi_0|H|\Phi_0\rangle$, since every normal-ordered term has zero expectation value, and by \eqref{eq:E-det} it is $E_{\text{HF}}$:
+\begin{align}
+H &= \sum_{pq} f_{pq} \no{\cre{p} \ann{q}} + \frac{1}{4} \sum_{pqrs} \asym{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}} + \langle \Phi_0|H|\Phi_0\rangle \notag \\
+&= \FN + \VN + E_{\text{HF}} \label{eq:HN}
+\end{align}
+$\FN$ is the Fock operator and $\VN$ the two-electron operator, both in normal-ordered form. The normal-ordered Hamiltonian
+\begin{align*}
+\HN &= H - E_{\text{HF}} = \FN + \VN
+\end{align*}
+is the starting point of MBPT and CC.
+
+\begin{remark}
+$f_{pq} = h_{pq} + \sum_i \asym{pi}{qi}$ holds for \emph{any} reference determinant, as long as $i$ runs over the occupied orbitals of that determinant.
+\end{remark}
+
+\section{The Generalized Wick Theorem and Matrix Elements}
+
+\textbf{Generalized Wick theorem} (MEST p.~26; “Adv qc” p.~46). For a product of strings that are each already normal ordered,
+\begin{align*}
+\no{A B C \cdots} \no{X Y Z \cdots} &= \no{A B C \cdots X Y Z \cdots} + \sum_{\text{single}} \no{{\contraction{A B C \cdots X}} Y Z \cdots} \\
+&\quad + \sum_{\text{double}} \no{\mathrlap{\contraction{\phantom{A B C \cdots X}}} A {\underbracket{B C \cdots X Y}} Z \cdots} + \cdots
+\end{align*}
+where contractions are allowed only between operators of \emph{different} normal-ordered strings. As in Wick's theorem, $\langle \Phi_0|\no{A B C \cdots} \no{X Y Z \cdots}|\Phi_0\rangle$ is non-zero only for the fully contracted terms, in which every operator is paired into a contraction; so the two strings must contain equally many operators. The excited determinants are such strings acting on $|\Phi_0\rangle$ ($\cre{a}$ and $\ann{i}$ are quasiparticle creation operators):
+\begin{align*}
+|\Phi_i^a\rangle &= \cre{a} \ann{i} |\Phi_0\rangle = \no{\cre{a} \ann{i}} |\Phi_0\rangle \\
+|\Phi_{ij}^{ab}\rangle &= \cre{a} \cre{b} \ann{j} \ann{i} |\Phi_0\rangle = \no{\cre{a} \cre{b} \ann{j} \ann{i}} |\Phi_0\rangle
+\end{align*}
+
+\textbf{Single excitation} (MEST p.~27; “Adv qc” pp.~46--47). With \eqref{eq:HN},
+\begin{align*}
+\langle \Phi_0|H|\Phi_i^a\rangle &= \langle \Phi_0|H \cre{a} \ann{i}|\Phi_0\rangle \\
+&= \langle \Phi_0|(\FN + \VN + E_{\text{HF}}) \no{\cre{a} \ann{i}}|\Phi_0\rangle
+\end{align*}
+where
+\begin{align*}
+\langle \Phi_0|E_{\text{HF}} \no{\cre{a} \ann{i}}|\Phi_0\rangle &= E_{\text{HF}} \langle \Phi_0|\Phi_i^a\rangle = 0 \\
+\langle \Phi_0|\VN \no{\cre{a} \ann{i}}|\Phi_0\rangle &= 0 \eqnote{4 operators cannot all pair with 2}
+\end{align*}
+In the $\FN$ term $\cre{p}$ contracts with $\ann{i}$ (hole line) and $\ann{q}$ with $\cre{a}$ (particle line); the two lines are nested, so the sign is $+$:
+\begin{align*}
+\langle \Phi_0|H|\Phi_i^a\rangle &= \sum_{pq} f_{pq} \langle \Phi_0|\no{\cre{p} \ann{q}} \no{\cre{a} \ann{i}}|\Phi_0\rangle \\
+&= \sum_{pq} f_{pq} \langle \Phi_0|\no{\contraction{\cre{p} {\contraction{\ann{q} \cre{a}}} \ann{i}}}|\Phi_0\rangle \\
+&= \sum_{pq} f_{pq} \delta_{pi} \delta_{qa} \langle \Phi_0|\Phi_0\rangle \\
+&= f_{ia}
+\end{align*}
+For HF orbitals $f_{ia} = 0$: Brillouin's theorem (Chapter~3).
+
+\textbf{Double excitation} (MEST p.~27; “Adv qc” p.~47). Now the $E_{\text{HF}}$ and $\FN$ terms vanish (two operators cannot all pair with four), and $\VN$ is used in the form $\frac{1}{2} \sum \phys{pq}{rs} \no{\cre{p} \cre{q} \ann{s} \ann{r}}$:
+\begin{align*}
+\langle \Phi_0|H|\Phi_{ij}^{ab}\rangle &= \langle \Phi_0|H \cre{a} \cre{b} \ann{j} \ann{i}|\Phi_0\rangle \\
+&= \frac{1}{2} \sum_{pqrs} \phys{pq}{rs} \langle \Phi_0|\no{\cre{p} \cre{q} \ann{s} \ann{r}} \no{\cre{a} \cre{b} \ann{j} \ann{i}}|\Phi_0\rangle
+\end{align*}
+Number the operators $\cre{p} (1)$, $\cre{q} (2)$, $\ann{s} (3)$, $\ann{r} (4)$, $\cre{a} (5)$, $\cre{b} (6)$, $\ann{j} (7)$, $\ann{i} (8)$. In a full contraction $\ann{s}, \ann{r}$ pair with $\cre{a}, \cre{b}$ (particle lines) and $\cre{p}, \cre{q}$ with $\ann{j}, \ann{i}$ (hole lines). This gives $2 \times 2$ terms, each with the sign $(-1)^h$ for $h$ crossings:
+\begin{align*}
+\langle \Phi_0|\no{\cre{p} \cre{q} \ann{s} \ann{r}} \no{\cre{a} \cre{b} \ann{j} \ann{i}}|\Phi_0\rangle &= \delta_{sa} \delta_{rb} \delta_{pj} \delta_{qi} \eqnote{lines 3--5, 4--6, 1--7, 2--8: $h = 2$} \\
+&\quad - \delta_{sb} \delta_{ra} \delta_{pj} \delta_{qi} \eqnote{lines 3--6, 4--5, 1--7, 2--8: $h = 1$} \\
+&\quad - \delta_{sa} \delta_{rb} \delta_{pi} \delta_{qj} \eqnote{lines 3--5, 4--6, 1--8, 2--7: $h = 1$} \\
+&\quad + \delta_{sb} \delta_{ra} \delta_{pi} \delta_{qj} \eqnote{lines 3--6, 4--5, 1--8, 2--7: $h = 0$}
+\end{align*}
+Hence
+\begin{align*}
+\langle \Phi_0|H|\Phi_{ij}^{ab}\rangle &= \frac{1}{2} \big[ \phys{ji}{ba} - \phys{ji}{ab} - \phys{ij}{ba} + \phys{ij}{ab} \big] \\
+&= \frac{1}{2} \big[ 2 \phys{ij}{ab} - 2 \phys{ij}{ba} \big] \eqnote{exchange the two integration variables} \\
+&= \asym{ij}{ab}
+\end{align*}
+Both results agree with the Slater--Condon rules of Chapter~2 (cases 2 and 3). The bra forms used in Chapters 9 and 11 are the complex conjugates ($H$ is Hermitian), with $\langle \Phi_{ij}^{ab}| = \langle \Phi_0|\cre{i} \cre{j} \ann{b} \ann{a} = \langle \Phi_0|\no{\cre{i} \cre{j} \ann{b} \ann{a}}$:
+\begin{align*}
+\langle \Phi_i^a|H|\Phi_0\rangle &= f_{ai} \\
+\langle \Phi_{ij}^{ab}|\VN|\Phi_0\rangle &= \langle \Phi_{ij}^{ab}|H|\Phi_0\rangle = \asym{ab}{ij}
+\end{align*}
+
+\section{Determinants as Bit Strings}
+
+A program that needs determinants (FCI, for example) can store each one as an integer whose bit $p$ is 1 when spin orbital (or spatial orbital) $p$ is occupied, ordered by increasing index,
+\begin{align*}
+|D\rangle &= \cre{p_1} \cre{p_2} \dots \cre{p_N} |\text{vac}\rangle, \quad p_1 < p_2 < \dots < p_N
+\end{align*}
+\textbf{Sign rule.} To get to its correct position, $\cre{q}$ has to pass the creation operators of all occupied orbitals with index below $q$ (by \eqref{eq:anticomm}, a factor $-1$ for each):
+\begin{align*}
+\cre{q} |D\rangle &= (-1)^{N_{<q}} |D + q\rangle, \quad a_q |D\rangle = (-1)^{N_{<q}} |D - q\rangle
+\end{align*}
+where $N_{<q}$ is the number of occupied orbitals with index below $q$.
+
+\begin{summary}
+\begin{itemize}
+\item $\{a_p, \cre{q}\} = \delta_{pq}$ and all other anticommutators vanish; the Pauli principle and the antisymmetry of determinants are contained in them.
+\item $O_2 = \frac{1}{4} \sum \asym{pq}{rs} \cre{p} \cre{q} a_s a_r$ (note the order $\ann{s} \ann{r}$).
+\item With respect to the Fermi vacuum the only non-zero contractions are $\cre{i} a_j \rightarrow \delta_{ij}$ and $a_a \cre{b} \rightarrow \delta_{ab}$.
+\item $H = E_{\text{HF}} + \FN + \VN$, with $f_{pq} = h_{pq} + \sum_i \asym{pi}{qi}$ valid for any reference determinant.
+\item Determinant = bit string, sign $(-1)^{N_{<p}}$.
+\end{itemize}
+\end{summary}

@@ -1,0 +1,185 @@
+\chapter{The Roothaan--Hall Equations and the RHF Program}
+\label{ch:roothaan}
+
+The HF equations of Chapter 3 are integro-differential equations. Expanding the orbitals in a finite basis of atomic orbitals turns them into matrix equations---the Roothaan--Hall equations. This chapter gives the Fock matrix, density matrix and energy in the AO representation.
+
+\textbf{Parallel reading.} “qc” pp.~62--65: J and K matrix elements in the AO basis, the density matrix, the Roothaan equations, the SCF iteration and Löwdin orthogonalization, in one-to-one correspondence with this chapter; MEST pp.~13--16. Textbooks: Szabo--Ostlund §3.4 (§3.4.2 the Roothaan equations, §3.4.4 the Fock matrix, §3.4.5 orthogonalization of the basis, §3.4.6 the SCF procedure); Helgaker §10.6.1; ESQC collection Ch.~26. ESQC exercises 77.5 (the density matrix in LCAO) and 77.7 (derivative of the energy with respect to LCAO coefficients) make good exercises.
+
+\section{Basis-Set Expansion}
+
+Take $K$ atomic orbitals (basis functions) $\{\phi_\mu\}$ and write the spatial molecular orbitals as
+\begin{align*}
+\psi_i = \sum_{\mu=1}^K C_{\mu i} \phi_\mu
+\end{align*}
+Substitute into the closed-shell HF equation $\hat{f} \psi_i = \epsilon_i \psi_i$:
+\begin{align*}
+\hat{f} \sum_{\nu} C_{\nu i} \phi_\nu &= \epsilon_i \sum_{\nu} C_{\nu i} \phi_\nu
+\end{align*}
+Multiply from the left by $\phi_\mu^*$ and integrate:
+\begin{align*}
+\sum_{\nu} \langle \phi_\mu|\hat{f}|\phi_\nu\rangle C_{\nu i} &= \epsilon_i \sum_{\nu} \langle \phi_\mu|\phi_\nu\rangle C_{\nu i}
+\end{align*}
+Defining the Fock matrix $F_{\mu \nu} = \langle \phi_\mu|\hat{f}|\phi_\nu\rangle$ and the overlap matrix $S_{\mu \nu} = \langle \phi_\mu|\phi_\nu\rangle$, this reads
+\begin{align*}
+\sum_{\nu} F_{\mu \nu} C_{\nu i} &= \epsilon_i \sum_{\nu} S_{\mu \nu} C_{\nu i} \quad \Rightarrow \quad (F C)_{\mu i} = (S C \epsilon)_{\mu i}
+\end{align*}
+Last step: let $\epsilon$ be the diagonal matrix $\epsilon_{ji} = \epsilon_i \delta_{ji}$; then $\epsilon_i (S C)_{\mu i} = \sum_j (S C)_{\mu j} \epsilon_{ji} = (S C \epsilon)_{\mu i}$. Hence
+\begin{align}\label{eq:roothaan}
+F C = S C \epsilon
+\end{align}
+This is the generalized eigenvalue problem of Chapter 1, except that $F$ depends on $C$, so it has to be solved iteratively (SCF).
+
+\section{The Fock Matrix in the AO Representation}
+
+\subsection{One-Electron Part}
+
+\begin{align*}
+H^{\text{core}}_{\mu \nu} &= \langle \phi_\mu|h|\phi_\nu\rangle = T_{\mu \nu} + V_{\mu \nu}, \\
+T_{\mu \nu} &= \langle \phi_\mu| -\frac{1}{2} \nabla^2 |\phi_\nu\rangle, \\
+V_{\mu \nu} &= \langle \phi_\mu| -\sum_A \frac{Z_A}{|\mathbf{r} - \mathbf{R}_A|} |\phi_\nu\rangle
+\end{align*}
+In PySCF these are \code{mol.intor("int1e\_kin")} and \code{mol.intor("int1e\_nuc")}.
+
+\subsection{Coulomb Part}
+
+\begin{align*}
+&J_{\mu \nu} = \sum_j^{N/2} \langle \phi_\mu|\hat{J}_j|\phi_\nu\rangle \\
+&= \sum_j^{N/2} \int d\mathbf{r}_1 d\mathbf{r}_2 \phi_\mu^*(1) \phi_\nu(1) r_{12}^{-1} \psi_j^*(2) \psi_j(2)
+\end{align*}
+Expand $\psi_j$: $\psi_j^*(2) \psi_j(2) = \sum_{\lambda \sigma} C_{\lambda j}^* C_{\sigma j} \phi_\lambda^*(2) \phi_\sigma(2)$. Then
+\begin{align*}
+J_{\mu \nu} = \sum_{\lambda \sigma} \left[ \sum_j^{N/2} C_{\lambda j}^* C_{\sigma j} \right] \chem{\mu \nu}{\lambda \sigma}
+\end{align*}
+where $(\mu \nu|\lambda \sigma) = \int d\mathbf{r}_1 d\mathbf{r}_2 \phi_\mu^*(1) \phi_\nu(1) r_{12}^{-1} \phi_\lambda^*(2) \phi_\sigma(2)$ (chemists' notation). Define the density matrix
+\begin{align}\label{eq:density}
+D_{\sigma \lambda} = 2 \sum_j^{N/2} C_{\sigma j} C_{\lambda j}^* = 2 (C_{\text{occ}} C_{\text{occ}}^\dagger)_{\sigma \lambda}
+\end{align}
+(The factor 2 comes from the two electrons per spatial orbital. Note the index order: MEST p.~13 deliberately writes $P_{\sigma \lambda}$, opposite to the $\lambda \sigma$ of the integral, so that it is also correct for complex orbitals.) Then
+\begin{align*}
+J_{\mu \nu} = \frac{1}{2} \sum_{\lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\sigma \lambda}
+\end{align*}
+For real orbitals $D$ is symmetric, $D_{\sigma \lambda} = D_{\lambda \sigma}$. The closed-shell Fock operator contains $2 \hat{J}_j$, so the Coulomb term of the Fock matrix is
+\begin{align*}
+2 J_{\mu \nu} = \sum_{\lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\lambda \sigma}
+\end{align*}
+
+\subsection{Exchange Part}
+
+\begin{align*}
+&K_{\mu \nu} = \sum_j^{N/2} \langle \phi_\mu|\hat{K}_j|\phi_\nu\rangle \\
+&= \sum_j^{N/2} \int d\mathbf{r}_1 d\mathbf{r}_2 \phi_\mu^*(1) \psi_j(1) r_{12}^{-1} \psi_j^*(2) \phi_\nu(2)
+\end{align*}
+(By the definition of $\hat{K}_j$: the function acted on, $\phi_\nu$, enters the integral and moves to electron 2, while $\psi_j$ stays with electron 1.) Expanding $\psi_j$ in the same way:
+\begin{align*}
+K_{\mu \nu} &= \sum_{\lambda \sigma} \left[ \sum_j C_{\lambda j} C_{\sigma j}^* \right] \chem{\mu \lambda}{\sigma \nu} \\
+&= \frac{1}{2} \sum_{\lambda \sigma} \chem{\mu \lambda}{\sigma \nu} D_{\lambda \sigma}
+\end{align*}
+Altogether, the closed-shell Fock matrix is
+\begin{align}\label{eq:fock-ao}
+F_{\mu \nu} &= H^{\text{core}}_{\mu \nu} + \sum_{\lambda \sigma} D_{\lambda \sigma} \left[ \chem{\mu \nu}{\lambda \sigma} - \frac{1}{2} \chem{\mu \lambda}{\sigma \nu} \right]
+\end{align}
+This is identical to Szabo Eq.~(3.154) (Szabo's $P$ is our $D$).
+
+In the program we define the Coulomb and exchange matrices (without factors) as
+\begin{align*}
+J[D]_{\mu \nu} &= \sum_{\lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\lambda \sigma}, \\
+K[D]_{\mu \nu} &= \sum_{\lambda \sigma} \chem{\mu \lambda}{\sigma \nu} D_{\lambda \sigma}
+\end{align*}
+so that $F = H^{\text{core}} + J[D] - \frac{1}{2} K[D]$, which is exactly the line \code{F = h + J - 0.5 * K} of \code{rhf} in \code{hf\_to\_cc/scf.py}.
+
+\section{Properties of the Density Matrix}
+
+Let $C$ satisfy $C^{\mathsf T} S C = 1$ (real orbitals) and $D = 2 C_{\text{occ}} C_{\text{occ}}^{\mathsf T}$. The single-determinant energy depends only on $D$, not on the particular choice of occupied orbitals---this is the AO-representation form of the unitary invariance of Chapter 3: $D$ is unchanged under $C_{\text{occ}} \rightarrow C_{\text{occ}} U$.
+
+\section{The Energy in the AO Representation}
+
+The closed-shell energy of Chapter 2,
+\begin{align*}
+E_{\text{RHF}} &= 2 \sum_i h_{ii} + \sum_{ij} \left[ 2 \chem{ii}{jj} - \chem{ij}{ji} \right]
+\end{align*}
+is rewritten in the AO basis term by term (MEST pp.~15--16). With $\psi_i = \sum_\mu C_{\mu i} \phi_\mu$, each MO integral is a sum of AO integrals,
+\begin{align*}
+h_{ii} &= \sum_{\mu \nu} C_{\mu i}^* C_{\nu i} H^{\text{core}}_{\mu \nu} \\
+\chem{ij}{kl} &= \sum_{\mu \nu \lambda \sigma} C_{\mu i}^* C_{\nu j} C_{\lambda k}^* C_{\sigma l} \chem{\mu \nu}{\lambda \sigma}
+\end{align*}
+and each sum over the occupied orbitals is half a density-matrix element, $\sum_i C_{\nu i} C_{\mu i}^* = \frac{1}{2} D_{\nu \mu}$ by \eqref{eq:density}.
+
+\textbf{One-electron term.}
+\begin{align*}
+2 \sum_i h_{ii} &= 2 \sum_{\mu \nu} \sum_i C_{\mu i}^* C_{\nu i} H^{\text{core}}_{\mu \nu} \\
+&= \sum_{\mu \nu} H^{\text{core}}_{\mu \nu} \Big( 2 \sum_i C_{\nu i} (C_{\text{occ}}^\dagger)_{i \mu} \Big) \eqnote{$C^\dagger_{i \mu} = C_{\mu i}^*$} \\
+&= \sum_{\mu \nu} H^{\text{core}}_{\mu \nu}\, 2 (C_{\text{occ}} C_{\text{occ}}^\dagger)_{\nu \mu} \\
+&= \sum_{\mu \nu} H^{\text{core}}_{\mu \nu} D_{\nu \mu} = \sum_\mu (H^{\text{core}} D)_{\mu \mu} = \tr(H^{\text{core}} D) \quad \text{by \eqref{eq:density}}
+\end{align*}
+
+\textbf{Coulomb term.}
+\begin{align*}
+2 \sum_{ij} \chem{ii}{jj} &= 2 \sum_{\mu \nu \lambda \sigma} \sum_{ij} C_{\mu i}^* C_{\nu i} C_{\lambda j}^* C_{\sigma j} \chem{\mu \nu}{\lambda \sigma} \\
+&= 2 \sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} \sum_i C_{\mu i}^* C_{\nu i} \sum_j C_{\lambda j}^* C_{\sigma j} \\
+&= 2 \sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} \left( \frac{1}{2} D_{\nu \mu} \right) \left( \frac{1}{2} D_{\sigma \lambda} \right) \\
+&= \frac{1}{2} \sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\nu \mu} D_{\sigma \lambda} \\
+&= \frac{1}{2} \sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\mu \nu} D_{\lambda \sigma} \eqnote{real orbitals: $D$ symmetric} \\
+&= \frac{1}{2} \sum_{\mu \nu} J[D]_{\mu \nu} D_{\mu \nu} \eqnote{$J[D]_{\mu \nu} = \sum_{\lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\lambda \sigma}$} \\
+&= \frac{1}{2} \sum_{\mu \nu} J[D]_{\mu \nu} D_{\nu \mu} = \frac{1}{2} \tr(J[D] D)
+\end{align*}
+
+\textbf{Exchange term.}
+\begin{align*}
+-\sum_{ij} \chem{ij}{ji} &= -\sum_{\mu \nu \lambda \sigma} \sum_{ij} C_{\mu i}^* C_{\nu j} C_{\lambda j}^* C_{\sigma i} \chem{\mu \nu}{\lambda \sigma} \\
+&= -\sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} \sum_i C_{\mu i}^* C_{\sigma i} \sum_j C_{\lambda j}^* C_{\nu j} \\
+&= -\sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} \left( \frac{1}{2} D_{\sigma \mu} \right) \left( \frac{1}{2} D_{\nu \lambda} \right) \\
+&= -\frac{1}{4} \sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\sigma \mu} D_{\nu \lambda} \\
+&= -\frac{1}{4} \sum_{\mu \nu \lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\mu \sigma} D_{\nu \lambda} \eqnote{real orbitals} \\
+&= -\frac{1}{4} \sum_{\mu \sigma} K[D]_{\mu \sigma} D_{\mu \sigma} \eqnote{$K[D]_{\mu \sigma} = \sum_{\nu \lambda} \chem{\mu \nu}{\lambda \sigma} D_{\nu \lambda}$} \\
+&= -\frac{1}{4} \sum_{\mu \sigma} K[D]_{\mu \sigma} D_{\sigma \mu} = -\frac{1}{4} \tr(K[D] D)
+\end{align*}
+MEST p.~16 then writes $K[D]$ with the same summed pair $\lambda \sigma$ on $D$ as $J[D]$:
+\begin{align*}
+K[D]_{\mu \sigma} &= \sum_{\nu \lambda} \chem{\mu \nu}{\lambda \sigma} D_{\nu \lambda} = \sum_{\nu \lambda} \chem{\mu \nu}{\sigma \lambda} D_{\nu \lambda} \eqnote{real orbitals: $\chem{\mu \nu}{\lambda \sigma} = \chem{\mu \nu}{\sigma \lambda}$}
+\end{align*}
+and, renaming the summed $\nu, \lambda$ to $\lambda, \sigma$ and the free $\sigma$ to $\nu$,
+\begin{align*}
+K[D]_{\mu \nu} &= \sum_{\lambda \sigma} \chem{\mu \lambda}{\nu \sigma} D_{\lambda \sigma} \\
+J[D]_{\mu \nu} &= \sum_{\lambda \sigma} \chem{\mu \nu}{\lambda \sigma} D_{\lambda \sigma}
+\end{align*}
+With the AO indices written $i, j, k, l$ (unrelated to the occupied orbitals above), each piece is one \code{np.einsum} call (MEST pp.~15--16):
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+formula & \code{np.einsum} \\
+\midrule
+$\tr(H^{\text{core}} D) = \sum_{ij} H^{\text{core}}_{ij} D_{ji}$ & \code{np.einsum("ij,ji->", hcore, dm)} \\
+$\tr(J[D] D) = \sum_{ij} J[D]_{ij} D_{ji}$ & \code{np.einsum("ij,ji->", j, dm)} \\
+$\tr(K[D] D) = \sum_{ij} K[D]_{ij} D_{ji}$ & \code{np.einsum("ij,ji->", k, dm)} \\
+$J[D]_{ij} = \sum_{kl} \chem{ij}{kl} D_{kl}$ & \code{np.einsum("ijkl,kl->ij", eri, dm)} \\
+$K[D]_{ij} = \sum_{kl} \chem{ik}{jl} D_{kl}$ & \code{np.einsum("ikjl,kl->ij", eri, dm)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+The program \code{hf\_to\_cc/scf.py} (box below) uses the same two contractions, with the letters \code{"mnls"} for \code{"ijkl"} and \code{"mlns"} for \code{"ikjl"}, and evaluates the energy in the combined form \mbox{$\frac{1}{2} \tr[(H + F) D]$}.
+
+Adding the three terms and the nuclear repulsion $E_{nn}$, with $H = H^{\text{core}}$, $J = J[D]$ and $K = K[D]$:
+\begin{align}\label{eq:e-ao}
+E_{\text{RHF}} &= \tr(H D) + \frac{1}{2} \tr(J D) - \frac{1}{4} \tr(K D) + E_{nn} \\
+&= \tr(H D) + \frac{1}{2} \tr(V_{\text{eff}} D) + E_{nn}, \quad V_{\text{eff}} = J - \frac{1}{2} K
+\end{align}
+Equivalently $E = \frac{1}{2} \tr[(H + F) D] + E_{nn}$, the AO version of \eqref{eq:ehf-eps}.
+
+Implementation: \code{rhf} and \code{scf\_diis} (with the DIIS of Chapter 5) in \code{hf\_to\_cc/scf.py}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+J = np.einsum("mnls, ls->mn", eri, d_o)
+K = np.einsum("mlns, ls->mn", eri, d_o)
+F = h + J - 0.5 * K
+E_hf = 0.5 * np.einsum("mn, mn->", d_o, h+F) + E_nuc
+\end{lstlisting}
+\code{eri[m, n, l, s]} is $\chem{\mu\nu}{\lambda\sigma}$ and \code{d\_o} is $D$. The first two lines are $J[D]$ and $K[D]$ (for real orbitals $\chem{\mu\lambda}{\nu\sigma} = \chem{\mu\lambda}{\sigma\nu}$), the third is the Fock matrix \eqref{eq:fock-ao}, the last is $E = \frac{1}{2} \tr[(H + F) D] + E_{nn}$.
+\end{codemap}
+
+\begin{summary}
+\begin{itemize}
+\item The basis expansion turns the HF equations into $F C = S C \epsilon$, with $F = H + J[D] - \frac{1}{2} K[D]$ and $D = 2 C_{\text{occ}} C_{\text{occ}}^{\mathsf T}$.
+\item $E = \tr(HD) + \frac{1}{2} \tr(JD) - \frac{1}{4} \tr(KD) + E_{nn}$.
+\end{itemize}
+\end{summary}

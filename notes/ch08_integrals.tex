@@ -1,0 +1,89 @@
+\chapter{Integral Transformation and Spin-Orbital Integrals}
+\label{ch:integrals}
+
+All post-HF methods need integrals in the molecular-orbital (MO) representation. This chapter discusses two things: (1) how the AO$\to$MO transformation is reduced from $\mathcal{O}(N^8)$ to $\mathcal{O}(N^5)$; (2) the construction of the antisymmetrized spin-orbital integrals $\asym{pq}{rs}$ and the Fock matrix, the input of coupled cluster (Chapter 11).
+
+\textbf{Parallel reading.} The Sherrill--Schaefer CI review §3.1 (transformation of one- and two-electron integrals); Python for Quantum Chemistry §12.3 (integral transformation).
+
+\section{The AO$\to$MO Transformation}
+
+\subsection{Four Quarter Transformations}
+
+\begin{align*}
+\chem{pq}{rs} &= \sum_{\mu \nu \lambda \sigma} C_{\mu p} C_{\nu q} \chem{\mu \nu}{\lambda \sigma} C_{\lambda r} C_{\sigma s}
+\end{align*}
+Writing this formula directly as one \code{einsum}, each output element sums over four AO indices: $N^4$ outputs × $N^4$ summations = $\mathcal{O}(N^8)$. The key is to transform one index at a time:
+\begin{align*}
+\chem{\mu \nu}{\lambda s} &= \sum_{\sigma} \chem{\mu \nu}{\lambda \sigma} C_{\sigma s} \quad \mathcal{O}(N^5)
+\end{align*}
+\begin{align*}
+\chem{\mu \nu}{r s} &= \sum_{\lambda} C_{\lambda r} \chem{\mu \nu}{\lambda s} \quad \mathcal{O}(N^5)
+\end{align*}
+\begin{align*}
+\chem{\mu q}{r s} &= \sum_{\nu} C_{\nu q} \chem{\mu \nu}{r s} \quad \mathcal{O}(N^5)
+\end{align*}
+\begin{align*}
+\chem{p q}{r s} &= \sum_{\mu} C_{\mu p} \chem{\mu q}{r s} \quad \mathcal{O}(N^5)
+\end{align*}
+Each step sums over a single index at cost $\mathcal{O}(N^5)$, four steps in total. This is the basic idea of ``splitting a multiple sum into a sequence of pairwise contractions''. \code{einsum(..., optimize=True)} finds such contraction orders automatically, but for the integral transformation we write the four steps by hand.
+
+Implementation: \code{ao2mo} in \code{hf\_to\_cc/ao2mo.py}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+mo = np.einsum("ma, mnls->anls", C, eri)
+mo = np.einsum("nb, mnls->mbls", C, mo)
+mo = np.einsum("lc, mnls->mncs", C, mo)
+mo = np.einsum("sd, mnls->mnld", C, mo)
+\end{lstlisting}
+Each line is one quarter transformation, a single sum over one AO index at cost $\mathcal{O}(N^5)$. The code transforms $\mu$ first and $\sigma$ last, the reverse of the order above; any order gives the same $\chem{pq}{rs}$, returned as \code{mo[p, q, r, s]}.
+\end{codemap}
+
+\section{Spin-Orbital Integrals}
+
+\subsection{Ordering}
+
+The spin orbitals are ordered by spatial orbital, with the two spins interleaved as in Chapter 2 (counting from 0, spin orbital $2p$ is $\psi_p \alpha$ and $2p + 1$ is $\psi_p \beta$):
+\begin{align*}
+&[\psi_0 \alpha, \psi_0 \beta, \psi_1 \alpha, \psi_1 \beta, \dots]
+\end{align*}
+For a closed shell the first $N$ are occupied. The $o$/$v$ blocking is then a simple slice \code{[:N]}, \code{[N:]}. Each spin orbital $P$ has the spatial orbital $\psi_{\lfloor P/2 \rfloor}$ and a spin label $s_P$ ($\alpha$ for even $P$, $\beta$ for odd $P$). For RHF, $\alpha$ and $\beta$ use the same set of spatial orbitals; for UHF each uses its own.
+
+\subsection{Antisymmetrized Integrals}
+
+First do one AO$\to$MO transformation with the spatial coefficients of all spin orbitals to obtain $\chem{PQ}{RS}_{\text{space}}$, then multiply by the spin-integration factor (Chapter 2: the two orbitals of the same electron must have the same spin):
+\begin{align*}
+(PQ|RS) &= (PQ|RS)_{\text{space}} \delta_{s_P s_Q} \delta_{s_R s_S}
+\end{align*}
+Convert to physicists' notation and antisymmetrize:
+\begin{align*}
+\phys{PQ}{RS} &= (PR|QS), \quad \asym{PQ}{RS} = \phys{PQ}{RS} - \phys{PQ}{SR} = (PR|QS) - (PS|QR)
+\end{align*}
+\code{spin\_orbitals} in \code{hf\_to\_cc/ao2mo.py} returns $\asym{PQ}{RS}$, in this ordering, as the four-index array \code{g[P, Q, R, S]}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+v = 0.0
+if p % 2 == r % 2 and q % 2 == s % 2:
+    v += mo[p // 2, r // 2, q // 2, s // 2]
+if p % 2 == s % 2 and q % 2 == r % 2:
+    v -= mo[p // 2, s // 2, q // 2, r // 2]
+g[p, q, r, s] = v
+\end{lstlisting}
+Spin orbital \code{p} is spatial orbital \code{p // 2} with spin \code{p \% 2} ($0 = \alpha$, $1 = \beta$). The first \code{if} is the spin condition of $\phys{PQ}{RS} = (PR|QS)$, the second that of the exchange term $(PS|QR)$.
+\end{codemap}
+
+\subsection{Fock Matrix and Reference Energy}
+
+The Fock matrix of \eqref{eq:HN} of Chapter 7 is $f_{pq} = h_{pq} + \sum_{i \in \text{occ}} \asym{pi}{qi}$; for RHF/UHF references it is diagonal. The reference energy is
+\begin{align*}
+E_{\text{ref}} &= E_{nn} + \sum_i h_{ii} + \frac{1}{2} \sum_{ij} \asym{ij}{ij}
+\end{align*}
+$E_{\text{ref}}$ must agree with the HF energy, which makes it an overall check that the integral transformation and the spin integration are both correct.
+
+\begin{summary}
+\begin{itemize}
+\item Four $\mathcal{O}(N^5)$ quarter transformations instead of one $\mathcal{O}(N^8)$ sum.
+\item Spin-orbital integrals = spatial integrals × spin deltas, then $\asym{PQ}{RS} = \chem{PR}{QS} - \chem{PS}{QR}$; the Fock matrix $f = h + \sum_i \asym{pi}{qi}$ holds for any reference.
+\end{itemize}
+\end{summary}

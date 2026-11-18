@@ -1,0 +1,240 @@
+\chapter{The Variational Principle and Linear Variation}
+\label{ch:variational}
+
+All of electronic-structure theory rests on two things: the eigenvalue problem of the Schrödinger equation, and the variational principle used to approximate it when it cannot be solved exactly. HF, CI and MCSCF are variational methods; CC and perturbation theory are not, but their starting point (the HF reference) is. This chapter derives both from scratch and ends with the single line \code{scipy.linalg.eigh} in the code.
+
+\textbf{Parallel reading.} “qc” pp.~30--32 (variational principle) and pp.~19--23 (basis expansion and matrix representation, change of basis); MEST pp.~2--5 (linear variation and the secular equation). Textbooks: Szabo--Ostlund §1.3 (the variational method; §1.3.2 the linear variational problem) and §1.1.5--1.1.7 (change of basis, the eigenvalue problem, functions of matrices---$S^{-1/2}$ is a function of a matrix), §3.4.5 (orthogonalization); Helgaker §4.2 (the variational principle).
+
+\section{A Complete Set of Eigenfunctions and Expansions}
+
+The non-relativistic electronic Hamiltonian in the Born--Oppenheimer approximation (atomic units) is
+\begin{align}\label{eq:Hel}
+\hat{H} &= -\sum_i \frac{1}{2} \nabla_i^2 - \sum_i \sum_A \frac{Z_A}{|r_i - R_A|} + \sum_{i<j} \frac{1}{|r_i - r_j|}
+\end{align}
+Let its eigenstates be $|\Phi_{\alpha}\rangle$, with eigenvalues in ascending order:
+\begin{align*}
+\hat{H} |\Phi_\alpha\rangle &= E_\alpha |\Phi_\alpha\rangle, \quad \alpha = 0, 1, 2, \ldots, \quad E_0 \le E_1 \le E_2 \le \ldots
+\end{align*}
+Because $\hat{H}$ is Hermitian, i.e.\ $\langle \Phi|\hat{H}|\Psi\rangle = \langle \Psi|\hat{H}|\Phi\rangle^*$ for any two states, its eigenvalues are real and eigenstates belonging to different eigenvalues are orthogonal. Degenerate eigenstates are not constrained in this way, but they can be Gram--Schmidt orthogonalized within the degenerate subspace. So one can always choose
+\begin{align*}
+\langle \Phi_\alpha | \Phi_\beta \rangle = \delta_{\alpha\beta}
+\end{align*}
+Whether this set of eigenstates is complete depends on the space we work in. Actual quantum-chemical calculations take place in the finite-dimensional space spanned by a finite basis, where $\hat{H}$ is a Hermitian matrix whose eigenvectors always form a complete orthonormal basis; this chapter is written for that finite-dimensional case. (For the true Hamiltonian in continuous space the bound states alone are not complete: the continuum must be added, and the sums below become sums plus integrals; the conclusions of the variational principle are unchanged.) The identity operator can then be written as
+\begin{align}\label{eq:completeness}
+\sum_{\alpha} |\Phi_\alpha\rangle\langle\Phi_\alpha| &= \hat{1}
+\end{align}
+
+Take any trial function $|\tilde{\Phi}\rangle$ satisfying the same boundary conditions and insert the identity to its left:
+\begin{align*}
+|\tilde{\Phi}\rangle &= \sum_{\alpha} |\Phi_\alpha\rangle \langle\Phi_\alpha|\tilde{\Phi}\rangle \\
+&= \sum_{\alpha} |\Phi_\alpha\rangle C_\alpha, \quad C_\alpha = \langle\Phi_\alpha|\tilde{\Phi}\rangle
+\end{align*}
+
+\section{The Variational Principle}
+
+\begin{theorem}[Variational principle]
+For any normalized trial function $|\tilde{\Phi}\rangle$ satisfying the boundary conditions, $\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle \ge E_0$, with equality if and only if $|\tilde{\Phi}\rangle$ is the ground state (or lies in the degenerate ground-state subspace).
+\end{theorem}
+
+\begin{proof}
+Idea: expand $|\tilde{\Phi}\rangle$ in the eigenstates; then $\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle$ is a weighted average of the eigenvalues and cannot be below the smallest one, $E_0$.
+
+Step 1: express the normalization condition in terms of the expansion coefficients. Insert the completeness relation \eqref{eq:completeness} twice into $\langle\tilde{\Phi}|\tilde{\Phi}\rangle$:
+\begin{align*}
+1 &= \langle\tilde{\Phi}|\tilde{\Phi}\rangle \\
+&= \sum_{\alpha \beta} \langle\tilde{\Phi}|\Phi_\alpha\rangle\langle\Phi_\alpha|\Phi_\beta\rangle\langle\Phi_\beta|\tilde{\Phi}\rangle \\
+&= \sum_{\alpha \beta} \langle\tilde{\Phi}|\Phi_\alpha\rangle \delta_{\alpha \beta} \langle\Phi_\beta|\tilde{\Phi}\rangle \\
+&= \sum_{\alpha} |\langle\Phi_\alpha|\tilde{\Phi}\rangle|^2 = \sum_{\alpha} |C_\alpha|^2
+\end{align*}
+The third equality uses orthonormality, $\langle \Phi_\alpha | \Phi_\beta \rangle = \delta_{\alpha\beta}$; the fourth sums over $\beta$, leaving only the term $\beta = \alpha$, and uses $\langle\tilde{\Phi}|\Phi_\alpha\rangle = \langle\Phi_\alpha|\tilde{\Phi}\rangle^*$.
+
+Step 2: expand the energy expectation value in the same way, now with $\hat{H}$ in the middle. With $\hat{H}$ acting to the right on an eigenstate, the matrix element in the middle is
+\begin{align*}
+\langle \Phi_\alpha|\hat{H}|\Phi_\beta\rangle &= E_\beta \langle \Phi_\alpha|\Phi_\beta\rangle = E_\beta \delta_{\alpha\beta}
+\end{align*}
+i.e.\ $\hat{H}$ is diagonal in the basis of its own eigenstates. Hence
+\begin{align*}
+\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle &= \sum_{\alpha \beta} \langle\tilde{\Phi}|\Phi_\alpha\rangle\langle\Phi_\alpha|\hat{H}|\Phi_\beta\rangle\langle\Phi_\beta|\tilde{\Phi}\rangle \\
+&= \sum_{\alpha \beta} \langle\tilde{\Phi}|\Phi_\alpha\rangle E_\beta \delta_{\alpha \beta} \langle\Phi_\beta|\tilde{\Phi}\rangle \\
+&= \sum_{\alpha} E_\alpha |C_\alpha|^2
+\end{align*}
+Step 3: subtract $E_0$ from the result of Step 2, writing $E_0$ as $E_0 \sum_\alpha |C_\alpha|^2$ by Step 1:
+\begin{align*}
+\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle - E_0 &= \sum_\alpha (E_\alpha - E_0) |C_\alpha|^2 \ge 0
+\end{align*}
+Every term is a product of two non-negative numbers: $E_\alpha - E_0 \ge 0$ ($E_0$ is the lowest eigenvalue) and $|C_\alpha|^2 \ge 0$.
+
+Step 4: equality. A sum of non-negative terms vanishes if and only if every term vanishes, i.e.\ for every $\alpha$ with $E_\alpha > E_0$ we have $C_\alpha = 0$. Then $|\tilde{\Phi}\rangle$ contains only components with eigenvalue $E_0$, $\hat{H} |\tilde{\Phi}\rangle = E_0 |\tilde{\Phi}\rangle$, and it is the ground state (or a vector in the degenerate ground-state subspace); conversely, the ground state obviously gives equality.
+\end{proof}
+
+For an unnormalized trial function (only $|\tilde{\Phi}\rangle \neq 0$ is required), use the Rayleigh quotient:
+\begin{align}\label{eq:rayleigh}
+E[\tilde{\Phi}] &= \frac{\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle}{\langle\tilde{\Phi}|\tilde{\Phi}\rangle} \ge E_0
+\end{align}
+with the same condition for equality as in the theorem above.
+
+\begin{proof}[Proof of \eqref{eq:rayleigh}]
+The denominator is positive: the expansion of Step 1 above holds for any $|\tilde{\Phi}\rangle$, $\langle\tilde{\Phi}|\tilde{\Phi}\rangle = \sum_\alpha |C_\alpha|^2$, and for $|\tilde{\Phi}\rangle \neq 0$ the coefficients do not all vanish, so $\langle\tilde{\Phi}|\tilde{\Phi}\rangle > 0$.
+
+$E[\tilde{\Phi}]$ does not depend on the length or the phase of $|\tilde{\Phi}\rangle$: for any complex $\lambda \neq 0$ the coefficient in a bra is complex conjugated, $\langle\lambda\tilde{\Phi}| = \lambda^* \langle\tilde{\Phi}|$, so
+\begin{align*}
+E[\lambda\tilde{\Phi}] &= \frac{|\lambda|^2 \langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle}{|\lambda|^2 \langle\tilde{\Phi}|\tilde{\Phi}\rangle} \\
+&= E[\tilde{\Phi}]
+\end{align*}
+With $\lambda = \langle\tilde{\Phi}|\tilde{\Phi}\rangle^{-1/2}$, $|\Phi'\rangle = \lambda |\tilde{\Phi}\rangle$ is normalized ($\langle\Phi'|\Phi'\rangle = |\lambda|^2 \langle\tilde{\Phi}|\tilde{\Phi}\rangle = 1$), and the theorem applies to it:
+\begin{align*}
+E[\tilde{\Phi}] &= E[\Phi'] = \langle\Phi'|\hat{H}|\Phi'\rangle \ge E_0
+\end{align*}
+Equality holds if and only if $|\Phi'\rangle$ is a ground state, and $|\tilde{\Phi}\rangle$ differs from $|\Phi'\rangle$ only by a non-zero factor.
+\end{proof}
+
+\section{Linear Variation: Orthonormal Basis}
+
+The most common trial function is a linear combination of a fixed set of functions $\{|\Psi_i\rangle\}$ ($i = 1, ..., N$), with the combination coefficients as variational parameters:
+\begin{align*}
+|\tilde{\Phi}\rangle &= \sum_{i=1}^N c_i |\Psi_i\rangle
+\end{align*}
+First assume that $\{|\Psi_i\rangle\}$ is orthonormal: $\langle\Psi_i|\Psi_j\rangle = \delta_{ij}$. Define the Hamiltonian matrix
+\begin{align*}
+H_{ij} &= \langle \Psi_i|\hat{H}|\Psi_j\rangle, \quad H_{ji}^* = \langle \Psi_j|\hat{H}|\Psi_i\rangle^* \\
+&= \langle \Psi_i|\hat{H}^\dagger|\Psi_j\rangle = H_{ij}
+\end{align*}
+i.e.\ $H$ is a Hermitian matrix. This uses the definition of the adjoint: the adjoint (Hermitian conjugate) of an operator $\hat{A}$ is the operator $\hat{A}^\dagger$ satisfying, for all $|\Phi\rangle$ and $|\Psi\rangle$,
+\begin{align*}
+\langle\Phi|\hat{A}^\dagger|\Psi\rangle &= \langle\Psi|\hat{A}|\Phi\rangle^*
+\end{align*}
+and an operator with $\hat{A}^\dagger = \hat{A}$ is called Hermitian. Taking $|\Phi\rangle = |\Psi_i\rangle$ and $|\Psi\rangle = |\Psi_j\rangle$ gives the second equality in the line for $H_{ji}^*$ above, and $\hat{H}^\dagger = \hat{H}$ gives the last one. For matrices the adjoint is the conjugate transpose, $(A^\dagger)_{ij} = A_{ji}^*$, so $H_{ji}^* = H_{ij}$ means $H^\dagger = H$; a real Hermitian matrix is a real symmetric matrix.
+
+In terms of the coefficients, the normalization condition and the energy are
+\begin{align*}
+\langle\tilde{\Phi}|\tilde{\Phi}\rangle &= \sum_{ij} c_i^* c_j \langle\Psi_i|\Psi_j\rangle = \sum_i |c_i|^2 = 1
+\end{align*}
+\begin{align*}
+\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle = \sum_{ij} c_i^* c_j H_{ij}
+\end{align*}
+
+Now we look for the coefficients that minimize the energy. We cannot simply differentiate $\langle\tilde{\Phi}|\hat{H}|\tilde{\Phi}\rangle = \sum_{ij} c_i^* c_j H_{ij}$: it is the energy only when $\sum_i |c_i|^2 = 1$, and scaling all coefficients by $t$ multiplies it by $|t|^2$, so looking for its lowest point on its own only drives the coefficients to zero or to infinity. The remedy is the Rayleigh quotient of the previous section:
+\begin{align*}
+E(c) &= \frac{c^\dagger H c}{c^\dagger c}
+\end{align*}
+The denominator already contains the normalization, and $E(c)$ does not depend on the length of $c$ (proof of \eqref{eq:rayleigh}), so every coefficient can be varied freely. Take real coefficients first. Multiplying by the denominator, $E(c)\, c^{\mathsf T} c = c^{\mathsf T} H c$; differentiating with respect to $c_k$ (product rule):
+\begin{align*}
+\frac{\partial E}{\partial c_k} (c^{\mathsf T} c) + E \frac{\partial}{\partial c_k}(c^{\mathsf T} c) &= \frac{\partial}{\partial c_k}(c^{\mathsf T} H c)
+\end{align*}
+When differentiating, $c_k$ appears in two places of the double sum:
+\begin{align*}
+\frac{\partial}{\partial c_k} \left(\sum_{ij} c_i c_j H_{ij}\right) &= \sum_{ij} (\delta_{ik} c_j + c_i \delta_{jk}) H_{ij} \\
+&= \sum_j c_j H_{kj} + \sum_i c_i H_{ik} = 2 \sum_j c_j H_{kj}
+\end{align*}
+The last step uses the real symmetry $H_{ik} = H_{ki}$; likewise $\partial (c^{\mathsf T} c) / \partial c_k = 2 c_k$. At the lowest point (in general, at a stationary point) $\frac{\partial E}{\partial c_k} = 0$, so for every $k$ we have $E c_k = \sum_j H_{kj} c_j$; together this is the matrix eigenvalue equation
+\begin{align}\label{eq:Hc-Ec}
+H c &= E c
+\end{align}
+For complex coefficients, differentiating with respect to the real and imaginary parts of each coefficient gives the same equation. Multiplying \eqref{eq:Hc-Ec} from the left by $c^\dagger$ and using $c^\dagger c = 1$ gives $E = c^\dagger H c$: the eigenvalue is the energy of this trial function.
+
+MEST pp.~3--4 handle the normalization constraint with the method of Lagrange multipliers and obtain the same equation. That method becomes indispensable only for the HF equations (where the constraints are the orthonormality of all pairs of orbitals, which cannot be removed by a single quotient); it is introduced at the beginning of Chapter 3.
+
+A Hermitian matrix $H$ has $N$ real eigenvalues and an orthonormal set of eigenvectors $c^{\alpha}$:
+\begin{align*}
+H c^{\alpha} &= E_{\alpha} c^{\alpha}, \quad (c^{\alpha})^{\dagger} c^{\beta} = \sum_i c_i^{\alpha *} c_i^{\beta} = \delta_{\alpha\beta}
+\end{align*}
+Arranging all eigenvectors into the matrix $C = [c^{0}, c^{1}, \ldots, c^{N-1}]$ and the eigenvalues into the diagonal matrix $E = \text{diag}(E_0, \ldots, E_{N-1})$,
+\begin{align*}
+H C & = C E, \quad C^\dagger C = 1
+\end{align*}
+The corresponding approximate states $|\tilde{\Phi}_\alpha\rangle = \sum_i c_i^\alpha |\Psi_i\rangle$ are also orthonormal and diagonalize $\hat{H}$ within this subspace:
+\begin{align*}
+\langle\tilde{\Phi}_\alpha|\tilde{\Phi}_\beta\rangle &= \sum_{ij} c_i^{\alpha *} c_j^\beta \delta_{ij} = \delta_{\alpha \beta}
+\end{align*}
+\begin{align*}
+\langle\tilde{\Phi}_\alpha|\hat{H}|\tilde{\Phi}_\beta\rangle &= \sum_{ij} c_i^{\alpha *} H_{ij} c_j^\beta \\
+&= (c^\alpha)^\dagger H c^\beta = E_\beta \delta_{\alpha \beta}
+\end{align*}
+The lowest eigenvalue (written $\tilde{E}_0$ below, to distinguish it from the exact $E_0$) is the best upper bound to the ground-state energy attainable in this function space.
+
+\section{Linear Variation: Non-orthogonal Basis}
+
+The basis functions of quantum chemistry (Gaussian atomic orbitals, non-orthogonal determinants) are generally not orthogonal. Let the overlap matrix be
+\begin{align*}
+S_{ij} &= \langle \Psi_i|\Psi_j\rangle, \quad S = S^\dagger, \quad S \ \text{positive definite}
+\end{align*}
+(Positive definiteness: for any non-zero $c$, $c^\dagger S c = \langle \tilde{\Phi}|\tilde{\Phi}\rangle > 0$, as long as the basis functions are linearly independent.)
+
+As in the previous section, take the extremum of the Rayleigh quotient. With real coefficients,
+\begin{align*}
+E(c) &= \frac{c^{\mathsf T} H c}{c^{\mathsf T} S c} \Rightarrow E c^{\mathsf T} S c = c^{\mathsf T} H c
+\end{align*}
+Differentiate with respect to $c_k$ (both sides, with the product rule):
+\begin{align*}
+\frac{\partial E}{\partial c_k} (c^{\mathsf T} S c) + E \frac{\partial}{\partial c_k}(c^{\mathsf T} S c) &= \frac{\partial}{\partial c_k}(c^{\mathsf T} H c)
+\end{align*}
+The same calculation as in the previous section gives $\frac{\partial (c^{\mathsf T} S c)}{\partial c_k} = 2 (S c)_k$ and $\frac{\partial (c^{\mathsf T} H c)}{\partial c_k} = 2 (H c)_k$. At the extremum $\frac{\partial E}{\partial c_k} = 0$, so
+\begin{align}\label{eq:HcESc}
+2 E (S c)_k &= 2 (H c)_k \quad\Rightarrow\quad H c = E S c
+\end{align}
+This is the \textbf{generalized eigenvalue problem}. Arranging all solutions into a matrix:
+\begin{align*}
+H C &= S C E, \quad C^\dagger S C = 1
+\end{align*}
+The latter is the new orthonormality condition: the overlap between the approximate states $|\tilde{\Phi}_\alpha\rangle = \sum_i C_{i \alpha} |\Psi_i\rangle$ is exactly $(C^\dagger S C)_{\alpha \beta}$.
+
+The Roothaan equations $F C = S C \epsilon$ (Chapter 4) have exactly this form, except that $F$ depends on $C$.
+
+\section{Numerical Solution of the Generalized Eigenvalue Problem}
+
+\subsection{Reduction to an Ordinary Eigenvalue Problem}
+
+The standard way to solve $H c = E S c$: find a matrix $X$ such that
+\begin{align}\label{eq:XSX}
+X^\dagger S X &= 1
+\end{align}
+then set $c = X c'$, substitute, and multiply from the left by $X^\dagger$:
+\begin{align*}
+H X c' & = E S X c' \Rightarrow (X^\dagger H X) c' = E (X^\dagger S X) c' = E c'
+\end{align*}
+Defining $H' = X^\dagger H X$, the problem becomes the ordinary Hermitian eigenvalue problem $H' c' = E c'$. After solving for $c'$, back-substitute $c = X c'$. One can check that the orthonormality condition is satisfied automatically:
+\begin{align*}
+C^\dagger S C &= C'^\dagger X^\dagger S X C' = C'^\dagger C' = 1
+\end{align*}
+
+\subsection{Symmetric Orthogonalization (Löwdin)}
+
+$S$ is a Hermitian positive-definite matrix and can be diagonalized: $S = U s U^\dagger$, $s = \mathrm{diag}(s_1, \ldots, s_N)$, $s_i > 0$, $U^\dagger U = 1$. Define
+\begin{align*}
+S^{-1/2} &= U s^{-1/2} U^\dagger, \quad s^{-1/2} = \text{diag}(s_1^{-1/2}, \ldots, s_N^{-1/2})
+\end{align*}
+Take $X = S^{-1/2}$ and check \eqref{eq:XSX}:
+\begin{align*}
+X^\dagger S X &= U s^{-1/2} U^\dagger U s U^\dagger U s^{-1/2} U^\dagger \\
+&= U s^{-1/2} s s^{-1/2} U^\dagger \\
+&= U U^\dagger \\
+&= 1
+\end{align*}
+($S^{-1/2}$ is itself Hermitian, so $X^\dagger = X$.) This is exactly how MEST p.~14 turns $F C = S C \epsilon$ into $F' C' = C' \epsilon$:
+\begin{align*}
+F' &= S^{-1/2} F S^{-1/2}, \quad C = S^{-1/2} C'
+\end{align*}
+
+\subsection{Canonical Orthogonalization and Linear Dependence}
+
+Another choice is $X = U s^{-1/2}$ (without the final $U^\dagger$):
+\begin{align*}
+X^\dagger S X &= s^{-1/2} U^\dagger U s U^\dagger U s^{-1/2} \\
+&= s^{-1/2} s s^{-1/2} \\
+&= 1
+\end{align*}
+Its advantage is that very small $s_i$ can be \emph{dropped}. When the basis contains very diffuse functions or atoms are close together, the basis functions become nearly linearly dependent; the smallest eigenvalue of $S$ can be as small as $10^{-8}$ or smaller, $s_i^{-1/2}$ then reaches $10^4$, and rounding errors are amplified by a factor of $10^4$ or more. Canonical orthogonalization keeps only the columns with $s_i > \tau$ (we take $\tau = 10^{-8}$):
+\begin{align*}
+X &= U_{:,\,\text{keep}}\, s_{\text{keep}}^{-1/2}, \quad X \ \text{is an}\ N \times M \ \text{matrix}, \quad M \le N
+\end{align*}
+Then $X^\dagger S X = 1_M$ still holds (only the dimension is now $M$), and the new eigenvalue problem is $M \times M$. The number of molecular orbitals $M$ can be smaller than the number of atomic orbitals $N$.
+
+Implementation: \code{solve} in \code{hf\_to\_cc/scf.py} solves $F C = S C \epsilon$ with \code{scipy.linalg.eigh}.
+
+\begin{summary}
+\begin{itemize}
+  \item Variational principle: the energy expectation value of any trial function is an upper bound to the ground-state energy.
+  \item Linear variation $\Rightarrow$ $H c = E S c$; for an orthonormal basis $S = 1$.
+  \item Numerically, an orthogonalizing matrix $X$ ($X^{\mathsf T} S X = 1$) reduces it to an ordinary eigenvalue problem; canonical orthogonalization can drop linearly dependent directions and is more robust.
+\end{itemize}
+\end{summary}

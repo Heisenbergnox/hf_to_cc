@@ -1,0 +1,80 @@
+\chapter{SCF Convergence and DIIS}
+\label{ch:scf}
+
+With the Roothaan equations alone and no convergence acceleration, methanol and benzene simply cannot be computed. This chapter starts from ``SCF is a fixed-point iteration'', analyses why it oscillates, and then presents DIIS.
+
+\textbf{Parallel reading.} ESQC collection Ch.~27 (Almlöf, Ahlrichs, Klopper): §27.1 level shifting and damping, §27.2 DIIS, §27.4 guessing initial orbitals. The experience reported there: DIIS needs only the last 4--6 steps; use level shifting for the first few steps and then switch to DIIS. Helgaker §10.6.2 interprets DIIS as a weighted average of the effective potentials of the previous steps (weights summing to 1, equivalent to averaging the density matrices) and notes that it is most effective when the naive SCF iteration oscillates between two potentials; §10.8--10.9 regard the SCF iteration as an approximate second-order (Newton) method, and §10.9.6 compares their convergence rates. Next to the SCF procedure on p.~64 of “qc” is written “accelerating convergence?”---this chapter answers that question.
+
+\section{SCF Is a Fixed-Point Iteration}
+
+One SCF iteration is a map:
+\begin{align*}
+D_{n+1} &= \Phi(D_n): \quad D_n \rightarrow F[D_n] \rightarrow \text{diagonalize} \rightarrow C_{n+1} \rightarrow D_{n+1}
+\end{align*}
+The HF solution is a fixed point $D^* = \Phi(D^*)$.
+
+\textbf{Where does oscillation come from?} Roughly, the response of $\Phi$ is ``the Fock matrix changes a little $\to$ how much virtual character mixes into the occupied orbitals''. By first-order perturbation theory the change of an occupied orbital is proportional to $\frac{\delta F_{ai}}{\epsilon_i - \epsilon_a}$, and $\delta F$ is in turn proportional to the change in density. When the HOMO--LUMO gap is small, or electrons can ``slosh'' between several equivalent positions (large conjugated systems, transition metals), the response exceeds 1 and has the opposite sign (too many electrons go to A $\to$ in the next step the repulsion at A is too large $\to$ all the electrons go to B ...).
+
+For example, for H$_2$O/STO-3G with both O--H bonds stretched to 1.87~Å the plain iteration (\code{rhf}) never converges: from one iteration to the next the energy alternates between $-73.5858$ and $-73.5470$~Eh. DIIS (next section) converges in 35 iterations to $-74.4704439437$~Eh, the PySCF value (\code{examples/diis\_vs\_plain.py}).
+
+\section{DIIS}
+
+\subsection{Idea}
+
+DIIS (direct inversion in the iterative subspace, Pulay 1980, 1982) takes a linear combination of the Fock matrices of the previous steps as the Fock matrix to diagonalize next:
+\begin{align*}
+\tilde{F} &= \sum_{k=1}^m c_k F_k, \quad \sum_k c_k = 1
+\end{align*}
+How the coefficients are chosen: assume that the error is a linear function of the parameters (true near convergence); then the error of the combination is approximately $\tilde{e} = \sum_k c_k e_k$. Minimize $|\tilde{e}|^2$ under the constraint $\sum c_k = 1$. With $B_{kl} = e_k \cdot e_l$ and a Lagrange multiplier $\lambda$ for the constraint, this minimization leads to the $(m+1) \times (m+1)$ linear system
+\[
+\begin{pmatrix} B_{11} & \cdots & B_{1m} & -1\\ \vdots & & \vdots & \vdots\\ B_{m1} & \cdots & B_{mm} & -1\\ -1 & \cdots & -1 & 0 \end{pmatrix}
+\begin{pmatrix} c_1\\ \vdots\\ c_m\\ \lambda \end{pmatrix}
+= \begin{pmatrix} 0\\ \vdots\\ 0\\ -1 \end{pmatrix}
+\]
+Once $c$ is known, $\lambda = |\tilde{e}|^2$ is exactly the squared error after extrapolation.
+
+\subsection{Error Vectors and Extrapolated Quantities}
+
+In SCF the error vector is the orbital gradient $e_k = F_k D_k S - S D_k F_k$ (it vanishes exactly at the HF solution, where $f_{ai} = 0$), and the extrapolated quantity is the Fock matrix $F_k = F[D_k]$---note that both are built from the same $D_k$.
+
+Implementation: \code{scf\_diis} in \code{hf\_to\_cc/scf.py}.
+
+\begin{codemap}
+\begin{lstlisting}[frame=none, numbers=none, xleftmargin=0pt, backgroundcolor={}]
+Fs.append(F)
+G = F @ d_o @ S - S @ d_o @ F
+Gs.append(G)
+Fs = Fs[-nkeep:]
+Gs = Gs[-nkeep:]
+
+m = len(Gs)
+A = np.zeros((m+1, m+1))
+for k in range(m):
+    for l in range(m):
+        A[k, l] = np.sum(Gs[k] * Gs[l])
+A[:m, m] = -1
+A[m, :m] = -1
+rhs = np.zeros(m+1)
+rhs[m] = -1
+c = np.linalg.solve(A, rhs)
+c = c[:m]
+
+F_mix = np.einsum("k, kmn->mn", c, Fs)
+\end{lstlisting}
+\code{G} is the error vector $e_k = F_k D_k S - S D_k F_k$; only the last \code{nkeep} pairs are kept. \code{A} and \code{rhs} are the bordered matrix and right-hand side of the linear system above, \code{c[:m]} drops $\lambda$, and \code{F\_mix} is $\tilde{F} = \sum_k c_k F_k$, which is diagonalized in place of $F$.
+\end{codemap}
+
+\begin{pitfall}
+\textbf{The initial guess decides which solution is found.} SCF only finds a stationary point of the energy, and DIIS converges quickly to a nearby one, which need not be the lowest. For N$_2$/STO-3G (\code{molecules/n2.xyz}), DIIS started from the core Hamiltonian converges in 9 iterations to $E = -106.8113762805$~Eh, while the RHF ground state is $-107.5006033119$~Eh; PySCF started from the same core-Hamiltonian guess finds the same higher solution. In that solution one virtual orbital has a negative energy ($-0.0665$~Eh) and the HOMO--LUMO gap is only $0.115$~Eh, and CCD iterated on top of it diverges. Started from a superposition of atomic densities (\code{guess\_density} in \code{provided.py}, passed to \code{scf\_diis} as \code{d\_x}), DIIS reaches $-107.5006033119$~Eh in 6 iterations.
+\end{pitfall}
+
+\begin{pitfall}
+\textbf{Orbital energies come from the Fock matrix of the converged density, not from $\tilde{F}$.} Near convergence all stored $F_k$ are nearly equal and the eigenvalues of $\tilde{F}$ are the orbital energies. If the density converges within a couple of iterations, the stored matrices still include $F$ built from the initial guess. For H$_2$/STO-3G from the atomic-density guess (converged in 2 iterations, the orbitals being fixed by symmetry) the eigenvalues of $\tilde{F}$ are $(-0.5026, 0.5714)$ instead of $(-0.5797, 0.6741)$~Eh, and the MP2 energy becomes $-0.0152613$ instead of $-0.0130721$~Eh; the SCF energy itself is unaffected, because it is evaluated with the unextrapolated $F$. \code{scf\_diis} therefore diagonalizes the Fock matrix of the converged density once more before returning.
+\end{pitfall}
+
+\begin{summary}
+\begin{itemize}
+\item SCF is a fixed-point iteration; a small gap causes oscillations.
+\item DIIS: minimize the extrapolated error under the constraint $\sum c = 1$; the error vector is the orbital gradient $\text{FDS} - \text{SDF}$.
+\end{itemize}
+\end{summary}
