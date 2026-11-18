@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from hf_to_cc import H2O, integrals, rhf, scf_diis, solve
+from hf_to_cc import H2O, guess_density, integrals, rhf, scf_diis, solve
 
 
 H2O_x2 = "O 0 0 0.119262; H 0 1.526478 -0.954094; H 0 -1.526478 -0.954094"
@@ -41,8 +41,9 @@ def test_reference_energy():
 
 def test_diis_converges_where_plain_scf_does_not(pyscf_rhf):
     mol, S, h, eri, E_nuc, N = integrals(H2O_x2)
+    d0 = guess_density(mol)
     with pytest.raises(RuntimeError):
-        rhf(S, h, eri, E_nuc, N)
-    E, eps, C, n_iter = scf_diis(S, h, eri, E_nuc, N)
+        rhf(S, h, eri, E_nuc, N, d_x=d0)
+    E, eps, C, n_iter = scf_diis(S, h, eri, E_nuc, N, d_x=d0)
     assert E == pytest.approx(pyscf_rhf(H2O_x2).e_tot, abs=1e-8)
     assert E == pytest.approx(-74.4704439437, abs=1e-9)

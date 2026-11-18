@@ -15,7 +15,7 @@ The HF solution is a fixed point $D^* = \Phi(D^*)$.
 
 \textbf{Where does oscillation come from?} Roughly, the response of $\Phi$ is ``the Fock matrix changes a little $\to$ how much virtual character mixes into the occupied orbitals''. By first-order perturbation theory the change of an occupied orbital is proportional to $\frac{\delta F_{ai}}{\epsilon_i - \epsilon_a}$, and $\delta F$ is in turn proportional to the change in density. When the HOMO--LUMO gap is small, or electrons can ``slosh'' between several equivalent positions (large conjugated systems, transition metals), the response exceeds 1 and has the opposite sign (too many electrons go to A $\to$ in the next step the repulsion at A is too large $\to$ all the electrons go to B ...).
 
-For example, for H$_2$O/STO-3G with both O--H bonds stretched to 1.87~Å the plain iteration (\code{rhf}) never converges: from one iteration to the next the energy alternates between $-73.5858$ and $-73.5470$~Eh. DIIS (next section) converges in 35 iterations to $-74.4704439437$~Eh, the PySCF value (\code{examples/diis\_vs\_plain.py}).
+For example, for H$_2$O/STO-3G with both O--H bonds stretched to 1.87~Å, started from the atomic-density guess, the plain iteration (\code{rhf}) never converges: from one iteration to the next the energy alternates between $-73.5858$ and $-73.5470$~Eh. DIIS (next section), from the same start, converges in about 14 iterations to $-74.4704439437$~Eh, the PySCF value (\code{examples/diis\_vs\_plain.py}).
 
 \section{DIIS}
 
